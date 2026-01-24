@@ -4,6 +4,7 @@ import './App.css'
 import { Toaster } from 'react-hot-toast';
 import { AuthProvider, useAuth } from './contexts/AuthContext'
 import Home from './pages/Home';
+import Layout from './pages/Layout';
 import Dashboard from './pages/Dashboard';
 
 function AppProvider() {
@@ -40,9 +41,13 @@ function AppProvider() {
             />
             <Routes>
                 {user ? (
-                    <Route path='/' element={<Dashboard />} />
+                    <Route path='/' element={<Layout />}>
+                        <Route index element={<Dashboard />} />
+                    </Route>
                 ) : (
-                    <Route path='/' element={<Home />} />
+                    <Route path='/' element={<Layout />}>
+                        <Route index element={<Dashboard />} />
+                    </Route>
                 )}
             </Routes>
         </Router>
