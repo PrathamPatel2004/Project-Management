@@ -5,6 +5,7 @@ import { Toaster } from 'react-hot-toast';
 import { AuthProvider, useAuth } from './contexts/AuthContext'
 import Home from './pages/Home';
 import Layout from './pages/Layout';
+import Projects from './pages/Projects';
 import Dashboard from './pages/Dashboard';
 
 function AppProvider() {
@@ -47,6 +48,7 @@ function AppProvider() {
                 ) : (
                     <Route path='/' element={<Layout />}>
                         <Route index element={<Dashboard />} />
+                        <Route path='projects' element={<Projects />} />
                     </Route>
                 )}
             </Routes>

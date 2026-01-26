@@ -1,5 +1,7 @@
 import { useEffect, useRef } from "react";
 import { NavLink } from "react-router-dom";
+import MyTasksSidebar from "./MyTasksSidebar";
+import ProjectSidebar from "./ProjectSidebar";
 import FolderOpenIcon from '@mui/icons-material/FolderOpen';
 import WorkspaceDropdown from "./WorkspaceDropdown";
 import DashboardIcon from '@mui/icons-material/Dashboard';
@@ -28,10 +30,10 @@ function Sidebar({ isSidebarOpen, setIsSidebarOpen }) {
     }, [setIsSidebarOpen]);
 
     return (
-        <div ref={sidebarRef} className={`z-10 bg-white dark:bg-neutral-900 min-w-68 flex flex-col h-screen border-r border-gray-200 dark:border-neutral-700  max-sm:absolute transition-all ${isSidebarOpen ? 'left-0' : '-left-full'}`}>
+        <div ref={sidebarRef} className={`z-10 bg-white dark:bg-neutral-900 min-w-68 flex flex-col h-screen border-r border-gray-200 dark:border-neutral-700 max-sm:absolute transition-all ${isSidebarOpen ? 'left-0' : '-left-full'}`}>
+            <WorkspaceDropdown />
+            <hr className="border-gray-200 dark:border-neutral-700" />
             <div className="flex-1 overflow-y-scroll scroll-no flex flex-col">
-                <WorkspaceDropdown />
-                <hr className="border-gray-200 dark:border-neutral-700" />
                 <div className="p-4">
                     {MenuItems.map((item) => {
                         return (
@@ -42,6 +44,9 @@ function Sidebar({ isSidebarOpen, setIsSidebarOpen }) {
                         )
                     })}
                 </div>
+
+                <MyTasksSidebar />
+                <ProjectSidebar />
             </div>
         </div>
     )

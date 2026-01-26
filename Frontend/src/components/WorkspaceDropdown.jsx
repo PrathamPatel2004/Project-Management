@@ -39,9 +39,7 @@ function WorkspaceDropdown() {
 
     return (
         <>
-            <div className="relative m-2" ref={dropdownRef}>
-
-                {/* Trigger */}
+            <div className="relative m-4" ref={dropdownRef}>
                 <button
                     onClick={() => setIsOpen(prev => !prev)}
                     className="w-full flex items-center justify-between p-3 rounded hover:bg-gray-100 dark:hover:bg-neutral-800"
