@@ -32,18 +32,18 @@ const Navbar = ({ setIsSidebarOpen }) => {
     }, [setOpenMenu]);
 
     return (
-        <div className="w-full bg-white dark:bg-zinc-900 border-b border-gray-200 dark:border-zinc-800 px-6 xl:px-16 py-3 flex-shrink-0">
+        <div className="w-full bg-white dark:bg-neutral-900 border-b border-gray-200 dark:border-neutral-800 px-6 xl:px-16 py-3 flex-shrink-0">
             <div className="flex items-center justify-between max-w-6xl mx-auto gap-3">
                 <div className="flex items-center gap-4 min-w-0 flex-1">
-                    <button onClick={() => setIsSidebarOpen((prev) => !prev)} className="sm:hidden p-2 rounded-lg transition-colors text-gray-700 dark:text-white hover:bg-gray-100 dark:hover:bg-zinc-800" >
+                    <button onClick={() => setIsSidebarOpen((prev) => !prev)} className="sm:hidden p-2 rounded-lg transition-colors text-gray-700 dark:text-white hover:bg-gray-100 dark:hover:bg-neutral-800" >
                         <ViewSidebarIcon className='w-9 h-9' />
                     </button>
                     <div className="relative flex-1 max-w-sm">
-                        <SearchIcon className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400 dark:text-zinc-400 size-3.5" />
+                        <SearchIcon className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400 dark:text-neutral-400 size-3.5" />
                         <input
                             type="text"
                             placeholder="Search projects, tasks..."
-                            className="pl-8 pr-4 py-2 w-full bg-white dark:bg-zinc-900 border border-gray-300 dark:border-zinc-700 rounded-md text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-zinc-400 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition"
+                            className="pl-8 pr-4 py-2 w-full bg-white dark:bg-neutral-900 border border-gray-300 dark:border-neutral-700 rounded-md text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-neutral-400 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition"
                         />
                     </div>
                 </div>

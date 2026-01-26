@@ -3,6 +3,10 @@ import { Link, useLocation, useSearchParams } from "react-router-dom";
 import { useSelector } from "react-redux";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
+import TopicIcon from '@mui/icons-material/Topic';
+import BarChartIcon from '@mui/icons-material/BarChart';
+import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
+import SettingsIcon from '@mui/icons-material/Settings';
 
 function ProjectSidebar() {
     const location = useLocation();
@@ -13,10 +17,10 @@ function ProjectSidebar() {
         useSelector((state) => state.workspace?.currentWorkspace?.projects) || [];
 
     const projectsSubitems = (projectId) => [
-        { title: "Tasks", tab: "tasks" },
-        { title: "Analytics", tab: "analytics" },
-        { title: "Calendar", tab: "calendar" },
-        { title: "Settings", tab: "settings" },
+        { title: 'Tasks', icon: TopicIcon, tab: "tasks" },
+        { title: 'Analytics', icon: BarChartIcon, tab: "analytics" },
+        { title: 'Calendar', icon: CalendarTodayIcon, tab: "calendar" },
+        { title: 'Settings', icon: SettingsIcon,   tab: "settings" },
     ];
 
     useEffect(() => {
@@ -37,12 +41,12 @@ function ProjectSidebar() {
     return (
         <div className="mt-2 px-3">
             <div className="flex items-center justify-between px-4 py-2">
-                <h3 className="text-sm font-semibold text-gray-500 dark:text-zinc-400 uppercase tracking-wider">Projects</h3>
+                <h3 className="text-sm font-semibold text-gray-500 dark:text-neutral-400 uppercase tracking-wider">Projects</h3>
                 <Link
                     to="/projects"
-                    className="size-4 flex items-center justify-center rounded hover:bg-gray-100 dark:hover:bg-zinc-800 transition"
+                    className="size-4 flex items-center justify-center rounded hover:bg-gray-100 dark:hover:bg-neutral-800 transition"
                 >
-                    <ArrowForwardIcon className="text-gray-500 dark:text-zinc-400" fontSize="small" />
+                    <ArrowForwardIcon className="text-gray-500 dark:text-neutral-400" fontSize="small" />
                 </Link>
             </div>
 
@@ -53,11 +57,11 @@ function ProjectSidebar() {
                         <div key={project.id}>
                             <button
                                 onClick={() => toggleProject(project.id)}
-                                className="w-full flex items-center gap-2 px-3 py-2 rounded-md text-sm text-gray-700 dark:text-zinc-300 hover:bg-gray-100 dark:hover:bg-zinc-800 transition"
+                                className="w-full flex items-center gap-2 px-3 py-2 rounded-md text-sm text-gray-700 dark:text-neutral-300 hover:bg-gray-100 dark:hover:bg-neutral-800 transition"
                             >
                                 <ChevronRightIcon
                                     fontSize="small"
-                                    className={`text-gray-500 dark:text-zinc-400 transition-transform ${
+                                    className={`text-gray-500 dark:text-neutral-400 transition-transform ${
                                         isExpanded ? "rotate-90" : ""
                                     }`}
                                 />
@@ -81,7 +85,7 @@ function ProjectSidebar() {
                                                 className={`block px-3 py-1.5 rounded-md text-xs transition ${
                                                     isActive
                                                         ? "bg-blue-100 text-blue-600 dark:bg-blue-500/10 dark:text-blue-400"
-                                                        : "text-gray-600 dark:text-zinc-400 hover:bg-gray-100 hover:text-gray-900 dark:hover:bg-zinc-800 dark:hover:text-white"
+                                                        : "text-gray-600 dark:text-neutral-400 hover:bg-gray-100 hover:text-gray-900 dark:hover:bg-neutral-800 dark:hover:text-white"
                                                 }`}
                                             >
                                                 {sub.title}
