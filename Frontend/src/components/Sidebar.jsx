@@ -1,8 +1,8 @@
 import { useEffect, useRef } from "react";
 import { NavLink } from "react-router-dom";
+import FolderOpenIcon from '@mui/icons-material/FolderOpen';
 import WorkspaceDropdown from "./WorkspaceDropdown";
 import DashboardIcon from '@mui/icons-material/Dashboard';
-import DeveloperModeIcon from '@mui/icons-material/DeveloperMode';
 import GroupsIcon from '@mui/icons-material/Groups';
 import SettingsIcon from '@mui/icons-material/Settings';
 
@@ -12,7 +12,7 @@ function Sidebar({ isSidebarOpen, setIsSidebarOpen }) {
 
     const MenuItems = [
         { name: 'Dashboard', href: '/', icon: DashboardIcon },
-        { name: 'Projects', href: '/projects', icon: DeveloperModeIcon },
+        { name: 'Projects', href: '/projects', icon: FolderOpenIcon },
         { name: 'Team', href: '/team', icon: GroupsIcon },
         { name: 'Settings', href: '/settings', icon: SettingsIcon }
     ]
