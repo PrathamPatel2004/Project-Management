@@ -53,7 +53,7 @@ const Navbar = ({ setIsSidebarOpen }) => {
                         onClick={toggleTheme}
                         className="p-4 w-9 h-9 flex items-center justify-center dark:bg-neutral-800 hover:text-blue-600 hover:bg-gray-200 dark:text-white dark:hover:text-blue-400 dark:hover:bg-gray-800 rounded-lg transition-all duration-200"
                     >
-                        {theme === "dark" ? <DarkModeIcon /> : <LightModeIcon />}
+                        {theme === "dark" ? <LightModeIcon /> : <DarkModeIcon />}
                     </button>
 
                     <div className="relative">

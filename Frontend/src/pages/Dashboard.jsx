@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import StatsGrid from '../components/StatsGrid';
 import AddIcon from '@mui/icons-material/Add';
+import ProjectOverview from '../components/ProjectOverview';
 import CreateProjectModal from '../components/CreateProjectModal';
 
 const Dashboard = () => {
@@ -25,16 +26,16 @@ const Dashboard = () => {
             </div>
 
             <StatsGrid />
-{/* 
+
             <div className="grid lg:grid-cols-3 gap-8">
                 <div className="lg:col-span-2 space-y-8">
                     <ProjectOverview />
-                    <RecentActivity />
+                    {/* <RecentActivity /> */}
                 </div>
                 <div>
-                    <TasksSummary />
+                    {/* <TasksSummary /> */}
                 </div>
-            </div> */}
+            </div>
         </div>
     )
 }

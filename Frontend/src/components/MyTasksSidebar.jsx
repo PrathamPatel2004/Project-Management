@@ -3,7 +3,7 @@ import { useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import TaskAltIcon from '@mui/icons-material/TaskAlt';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 
 function MyTasksSidebar() {
@@ -52,9 +52,9 @@ function MyTasksSidebar() {
                     </span>
                 </div>
                 {showMyTasks ? (
-                    <ExpandMoreIcon className="w-4 h-4 text-gray-500 dark:text-neutral-400" />
-                ) : (
                     <ExpandLessIcon className="w-4 h-4 text-gray-500 dark:text-neutral-400" />
+                ) : (
+                    <KeyboardArrowRightIcon className="w-4 h-4 text-gray-500 dark:text-neutral-400" />
                 )}
             </div>
 
