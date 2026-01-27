@@ -3,6 +3,7 @@ import { useAuth } from '../contexts/AuthContext';
 import StatsGrid from '../components/StatsGrid';
 import AddIcon from '@mui/icons-material/Add';
 import ProjectOverview from '../components/ProjectOverview';
+import TaskSummary from '../components/TaskSummary';
 import CreateProjectModal from '../components/CreateProjectModal';
 
 const Dashboard = () => {
@@ -33,7 +34,7 @@ const Dashboard = () => {
                     {/* <RecentActivity /> */}
                 </div>
                 <div>
-                    {/* <TasksSummary /> */}
+                    <TaskSummary />
                 </div>
             </div>
         </div>
