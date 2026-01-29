@@ -10,7 +10,7 @@ import CreateProjectModal from '../components/CreateProjectModal';
 const Dashboard = () => {
 
     const { user } = useAuth()
-    const [isDialogOpen, setIsDialogOpen] = useState(false)
+    const [isModalOpen, setIsModalOpen] = useState(false)
 
     return (
         <div className='max-w-6xl mx-auto'>
@@ -20,11 +20,11 @@ const Dashboard = () => {
                     <p className="text-gray-500 dark:text-zinc-400 text-sm"> Here's what's happening with your projects today </p>
                 </div>
 
-                <button onClick={() => setIsDialogOpen(true)} className="flex items-center gap-2 px-5 py-2 text-sm rounded bg-gradient-to-br from-blue-500 to-blue-600 text-white space-x-2 hover:opacity-90 transition" >
+                <button onClick={() => setIsModalOpen(true)} className="mt-4 px-4 py-2 text-sm bg-gradient-to-br from-blue-500 to-blue-600 text-white dark:text-neutral-200 rounded hover:opacity-90 transition" >
                     <AddIcon size={16} /> New Project
                 </button>
 
-                <CreateProjectModal isDialogOpen={isDialogOpen} setIsDialogOpen={setIsDialogOpen} />
+                <CreateProjectModal isModalOpen={isModalOpen} setIsModalOpen={setIsModalOpen} />
             </div>
 
             <StatsGrid />

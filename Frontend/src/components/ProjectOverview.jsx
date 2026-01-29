@@ -50,7 +50,7 @@ function ProjectOverview() {
                         <button onClick={() => setIsModalOpen(true)} className="mt-4 px-4 py-2 text-sm bg-gradient-to-br from-blue-500 to-blue-600 text-white dark:text-neutral-200 rounded hover:opacity-90 transition">
                             Create your First Project
                         </button>
-                        <CreateProjectModal isDialogOpen={isModalOpen} setIsDialogOpen={setIsModalOpen} />
+                        <CreateProjectModal isModalOpen={isModalOpen} setIsModalOpen={setIsModalOpen} />
                     </div>
                 ) : (
                     <div className='divide-y divide-neutral-200 dark:divide-neutral-800'>

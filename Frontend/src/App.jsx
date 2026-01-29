@@ -7,6 +7,8 @@ import Home from './pages/Home';
 import Layout from './pages/Layout';
 import Projects from './pages/Projects';
 import Dashboard from './pages/Dashboard';
+import Team from './pages/Team';
+import Settings from './pages/Settings';
 
 function AppProvider() {
     const { user } = useAuth();
@@ -49,6 +51,8 @@ function AppProvider() {
                     <Route path='/' element={<Layout />}>
                         <Route index element={<Dashboard />} />
                         <Route path='projects' element={<Projects />} />
+                        <Route path='team' element={<Team />} />
+                        <Route path='settings' element={<Settings />} />
                     </Route>
                 )}
             </Routes>
