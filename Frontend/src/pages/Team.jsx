@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
 import InviteMembersModal from '../components/InviteMembersModal';
 import SearchIcon from '@mui/icons-material/Search';
@@ -12,19 +12,28 @@ function Team() {
     const projects  = currentWorkspace?.projects || [];
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
-    const [teamMembers, setTeamMembers] = useState([]);
-    const [tasks, setTasks] = useState([]);
 
-    useEffect(() => {
-        setTeamMembers(currentWorkspace?.members || []);
-        setTasks(currentWorkspace?.projects?.reduce((acc, project) => [...acc, ...project.tasks], []) || []);
-    }, [currentWorkspace])
+    const teamMembers = useMemo(() => {
+        return currentWorkspace?.members || [];
+    }, [currentWorkspace]);
 
-    const filteredUsers = teamMembers.filter(
-        (member) => 
-            member?.user?.name?.toLowerCase().includes(searchTerm.toLowerCase()) || 
-            member?.user?.email?.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    const tasks = useMemo(() => {
+        if (!currentWorkspace?.projects) return [];
+        return currentWorkspace.projects.flatMap((project) => project.tasks || []);
+    }, [currentWorkspace]);
+
+    const filteredUsers = useMemo(() => {
+        if (!searchTerm.trim()) return teamMembers;
+
+        const q = searchTerm.toLowerCase();
+
+        return teamMembers.filter(
+            (member) =>
+                member?.user?.name?.toLowerCase().includes(q) ||
+                member?.user?.email?.toLowerCase().includes(q)
+        );
+    }, [teamMembers, searchTerm]);
+    
     return (
         <div className="space-y-6 max-w-6xl mx-auto">
             <div className='flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4'>
@@ -80,7 +89,7 @@ function Team() {
             </div>
 
             <div className='relative max-w-md'>
-                <SearchIcon className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-neutral-400 size-2" />
+                <SearchIcon className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-neutral-400 w-4 h-4" />
                 <input 
                     placeholder="Search team members..."
                     value={searchTerm}

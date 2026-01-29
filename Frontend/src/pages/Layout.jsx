@@ -10,9 +10,11 @@ const Layout = () => {
     const { loading, user } = useAuth();
 
     if (loading) {
-        <div className='flex items-center justify-center h-screen bg-white dark:bg-zinc-950'>
-            <ReplayIcon className="size-9 text-blue-500 animate-spin" />
-        </div>
+        return (
+            <div className='flex items-center justify-center h-screen bg-white dark:bg-zinc-950'>
+                <ReplayIcon className="size-9 text-blue-500 animate-spin" />
+            </div>
+        )
     }
 
     return (
