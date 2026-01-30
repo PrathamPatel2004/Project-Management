@@ -41,8 +41,12 @@ function Team() {
                     <h1 className='text-xl sm:text-2xl font-semibold text-gray-900 dark:text-white mb-1'>Team Details</h1>
                     <p className='text-gray-600 dark:text-neutral-300 text-sm'>Manage your team members and their contributions.</p>
                 </div>
-                <button onClick={() => setIsModalOpen(true)} className="mt-4 px-4 py-2 text-sm bg-gradient-to-br from-blue-500 to-blue-600 text-white dark:text-neutral-200 rounded hover:opacity-90 transition">
-                    <PersonAddIcon size={16} /> Add Member
+
+                <button
+                    onClick={() => setIsModalOpen(true)}
+                    className="flex items-center gap-1.5 px-4 py-2 text-sm bg-gradient-to-br from-blue-500 to-blue-600 text-white rounded hover:opacity-90 transition"
+                >
+                    <PersonAddIcon fontSize="small" /> Invite Members
                 </button>
 
                 <InviteMembersModal isModalOpen={isModalOpen} setIsModalOpen={setIsModalOpen} />

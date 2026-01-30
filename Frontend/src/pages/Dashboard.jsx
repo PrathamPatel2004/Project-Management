@@ -20,8 +20,11 @@ const Dashboard = () => {
                     <p className="text-gray-500 dark:text-zinc-400 text-sm"> Here's what's happening with your projects today </p>
                 </div>
 
-                <button onClick={() => setIsModalOpen(true)} className="mt-4 px-4 py-2 text-sm bg-gradient-to-br from-blue-500 to-blue-600 text-white dark:text-neutral-200 rounded hover:opacity-90 transition" >
-                    <AddIcon size={16} /> New Project
+                <button
+                    onClick={() => setIsModalOpen(true)}
+                    className="flex items-center gap-1.5 px-4 py-2 text-sm bg-gradient-to-br from-blue-500 to-blue-600 text-white rounded hover:opacity-90 transition"
+                >
+                    <AddIcon fontSize="small" />New Project
                 </button>
 
                 <CreateProjectModal isModalOpen={isModalOpen} setIsModalOpen={setIsModalOpen} />
