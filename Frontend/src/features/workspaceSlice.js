@@ -5,7 +5,7 @@ export const fetchWorkspaces = createAsyncThunk(
     'workspace/fetchAll',
     async (_, { rejectWithValue }) => {
         try {
-            const { data } = await api.get('workspace/get-all');
+            const { data } = await api.get('/api/workspace/get-all');
             return data;
         } catch (err) {
             return rejectWithValue(err.response?.data || err.message);

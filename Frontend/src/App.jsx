@@ -43,18 +43,24 @@ function AppProvider() {
                 },}}
             />
             <Routes>
-                {user ? (
-                    <Route path='/' element={<Layout />}>
-                        <Route index element={<Dashboard />} />
-                    </Route>
-                ) : (
-                    <Route path='/' element={<Layout />}>
-                        <Route index element={<Dashboard />} />
-                        <Route path='projects' element={<Projects />} />
-                        <Route path='team' element={<Team />} />
-                        <Route path='settings' element={<Settings />} />
-                    </Route>
-                )}
+                <Route path='/' element={<Layout />}>
+                    <Route index element={user ? <Dashboard /> : <Home />} />
+                    {user && (
+                        <>
+                            <Route path='projects' element={<Projects />} />
+                            <Route path='team' element={<Team />} />
+                            <Route path='settings' element={<Settings />} />
+                        </>
+                    )}
+                    <Route path='/auth/login' element={user ? <Dashboard /> : <Home />} />
+                    <Route path='/auth/signup' element={user ? <Dashboard /> : <Home />} />
+                    <Route path='/auth/forgot-password' element={user ? <Dashboard /> : <Home />} />
+                    <Route path='/auth/set-password' element={user ? <Dashboard /> : <Home />} />
+                    <Route path='/auth/verify' element={user ? <Dashboard /> : <Home />} />
+                    <Route path='/auth/reset-password' element={user ? <Dashboard /> : <Home />} />
+                    <Route path='/auth/verify' element={user ? <Dashboard /> : <Home />} />
+                </Route>
+
             </Routes>
         </Router>
     )

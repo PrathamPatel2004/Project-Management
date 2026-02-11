@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import api from '../api/axios';
 import CloseIcon from "@mui/icons-material/Close"
@@ -24,7 +24,18 @@ const CreateProjectModal = ({ isModalOpen, setIsModalOpen }) => {
         e.preventDefault();
         setIsSubmitting(true);
         try {
-            const { data } = await api.post(`/workspaces/${currentWorkspace.id}/projects/`, formData);
+            const { data } = await api.post(`/api/workspaces/${currentWorkspace.id}/projects/`, formData);
+            setFormData({
+                name: "",
+                description: "",
+                status: "PLANNING",
+                priority: "MEDIUM",
+                start_date: "",
+                end_date: "",
+                team_members: [],
+                team_lead: "",
+                progress: 0,
+            })
             return data;
         } catch (error) {
             console.error("Error creating project:", error);
@@ -147,7 +158,7 @@ const CreateProjectModal = ({ isModalOpen, setIsModalOpen }) => {
                         <button type="button" onClick={() => setIsModalOpen(false)} className="px-4 py-2 rounded border border-zinc-300 dark:border-zinc-700 hover:bg-zinc-200 dark:hover:bg-zinc-800" >
                             Cancel
                         </button>
-                        <button disabled={isSubmitting || !currentWorkspace} className="px-4 py-2 rounded bg-gradient-to-br from-blue-500 to-blue-600 text-white dark:text-zinc-200" >
+                        <button disabled={isSubmitting || !currentWorkspace} className="px-4 py-2 rounded bg-gradient-to-br from-blue-500 to-blue-600 text-white dark:text-zinc-200 disabled:opacity-50 disabled:cursor-not-allowed" >
                             {isSubmitting ? "Creating..." : "Create Project"}
                         </button>
                     </div>

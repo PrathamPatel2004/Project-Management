@@ -33,7 +33,7 @@ function InviteMembersModal({ isModalOpen, setIsModalOpen }) {
             formData.append("role", formData.role)
 
             const { data } = await api.post(
-                "workspace/invite-member",
+                "/api/workspace/invite-member",
                 formData,
                 { headers: { "Content-Type": "multipart/form-data" } }
             )
@@ -94,7 +94,7 @@ function InviteMembersModal({ isModalOpen, setIsModalOpen }) {
                         <button type="button" onClick={() => setIsModalOpen(false)} className="px-4 py-2 rounded text-sm border border-neutral-300 dark:border-neutral-700 text-neutral-900 dark:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition" >
                             Cancel
                         </button>
-                        <button type="submit" disabled={loading || !currentWorkspace} className="px-4 py-2 text-sm bg-gradient-to-br from-blue-500 to-blue-600 text-white dark:text-neutral-200 rounded hover:opacity-90 transition" >
+                        <button type="submit" disabled={loading || !currentWorkspace} className="px-4 py-2 text-sm bg-gradient-to-br from-blue-500 to-blue-600 text-white dark:text-neutral-200 rounded hover:opacity-90 transition disabled:opacity-50 disabled:cursor-not-allowed" >
                             {loading ? "Sending..." : "Send Invitation"}
                         </button>
                     </div>

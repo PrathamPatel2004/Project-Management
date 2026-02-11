@@ -66,7 +66,7 @@ const CreateWorkspaceModal = ({ onClose }) => {
             if (logoFile) formData.append("logo", logoFile)
 
             const { data } = await api.post(
-                "workspace/create",
+                "/api/workspace/create",
                 formData,
                 { headers: { "Content-Type": "multipart/form-data" } }
             )
@@ -171,7 +171,7 @@ const CreateWorkspaceModal = ({ onClose }) => {
                         <button
                             type="submit"
                             disabled={loading}
-                            className="px-4 py-2 text-sm bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
+                            className="px-4 py-2 text-sm bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                             {loading ? "Creating..." : "Create"}
                         </button>
