@@ -11,49 +11,22 @@ export const useAuth = () => {
 }
 
 export const AuthProvider = ({ children }) => {
-    const [user, setUser] = useState(() => {
-        try {
-            const raw = localStorage.getItem("user");
-            return raw ? JSON.parse(raw) : null;
-        } catch {
-            return null;
-        }
-    }, []);
+    const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        const verifySession = async() =>{
+        const restoreSession = async () => {
             try {
-                const { data } = await api.get("/api/auth/verify-access-token", {
-                    headers: { "Cache-Control": "no-cache", Pragma: "no-cache" }});
-                
-                if (data?.user) {
-                    setUser(data.user);
-                } else {
-                    toast.error("Token verification returned no user, keeping previous session");
-                }
-            } catch (err) {
-                if (err?.response?.status === 401) {
-                    setUser(null);
-                } else {
-                    toast.error("Token verification failed (non-auth error). Keeping user.");
-                }
+                const { data } = await api.post("/api/auth/verify");
+                setUser(data.user);
+            } catch {
+                setUser(null);
             } finally {
                 setLoading(false);
             }
-        }
-        verifySession();
+        };
+        restoreSession();
     }, []);
-
-    useEffect(() => {
-        try {
-            if (user) {
-                localStorage.setItem('user', JSON.stringify(user));
-            } else {
-                localStorage.removeItem('user');
-            }
-        } catch {}
-    }, [user]);
 
     const login = async (credentials) => {
         try {
@@ -69,6 +42,7 @@ export const AuthProvider = ({ children }) => {
     const signup = async (credentials) => {
         try {
             const { data } = await api.post('/api/auth/signup', credentials);
+            localStorage.setItem("accessToken", data.accessToken);
             setUser(data.user);
             return data;
         } catch (err) {
@@ -80,6 +54,7 @@ export const AuthProvider = ({ children }) => {
     const googleAuth = async (credentials) => {
         try {
             const { data } = await api.post("/api/auth/google", credentials);
+            localStorage.setItem("accessToken", data.accessToken);
             setUser(data.user);
             return data;
         } catch (err) {
@@ -101,8 +76,10 @@ export const AuthProvider = ({ children }) => {
     const logout = async () => {
         try {
             await api.post('/api/auth/logout');
-        } catch (err) {
-            toast.error(err?.response?.data?.message || "Logout failed");
+        } finally {
+            localStorage.removeItem("accessToken");
+            setUser(null);
+            window.location.href = "/auth/login";
         }
         setUser(null);
     }
