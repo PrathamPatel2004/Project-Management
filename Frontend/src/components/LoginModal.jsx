@@ -8,7 +8,7 @@ import { toast } from "react-hot-toast";
 
 const LoginModal = ({ isOpen, onClose }) => {
     const [formData, setFormData] = useState({ email: "", password: "" });
-    const { login, googleAuth } = useAuth();
+    const { user, login, logout, googleAuth } = useAuth();
     const [isSubmitting, setIsSubmitting] = useState(false);
     const navigate = useNavigate();
 
@@ -69,6 +69,46 @@ const LoginModal = ({ isOpen, onClose }) => {
             setIsSubmitting(false);
         }
     };
+
+    const handleLogout = async() => {
+        await logout();
+        toast.success("Logged out successfully");
+        navigate("/");
+    }
+
+    if (user) return (
+        <div className="fixed inset-0 bg-black/20 dark:bg-black/60 backdrop-blur flex items-center justify-center z-50 overflow-y-auto p-4">
+            <div className="bg-white dark:bg-neutral-950 border border-neutral-200 dark:border-neutral-800 rounded-xl p-6 w-full max-w-lg text-neutral-900 dark:text-neutral-200 relative">
+                <button
+                    className="absolute top-3 right-3 text-neutral-500 hover:text-neutral-800 dark:hover:text-white"
+                    onClick={onClose}
+                >
+                    <CloseIcon className="size-5" />
+                </button>
+
+                <h2 className="text-xl font-medium mb-1">Welcome Back</h2>
+                <p className="text-sm text-neutral-600 dark:text-neutral-400 mb-4">
+                    Login to continue to your account
+                </p>
+
+                <div className="space-y-4">
+                    <p className="text-sm text-red-600">
+                        You are logged in as <b>{user?.email}</b>. Please logout first.
+                    </p>
+
+                    <div className="flex justify-end py-2 text-sm">
+                        <button
+                            type="button"
+                            onClick={handleLogout}
+                            className="px-6 py-2 rounded bg-gradient-to-br from-blue-500 to-blue-600 text-white disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                            Logout
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    ) 
 
     return (
         <div className="fixed inset-0 bg-black/20 dark:bg-black/60 backdrop-blur flex items-center justify-center z-50 overflow-y-auto p-4">

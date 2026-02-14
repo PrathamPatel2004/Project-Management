@@ -14,6 +14,7 @@ import ForgotPasswordModal from "./ForgotPasswordModal";
 import ResetPasswordModal from "./ResetPasswordModal";
 import SetPasswordModal from "./SetPasswordModal";
 import VerificationModal from "./VerificationModal";
+import ProfileModal from "./ProfileModal";
 
 const Navbar = ({ setIsSidebarOpen }) => {
     const { user, logout } = useAuth();
@@ -25,12 +26,10 @@ const Navbar = ({ setIsSidebarOpen }) => {
     const [isResetPasswordModalOpen, setIsResetPasswordModalOpen] = useState(false);
     const [isSetPasswordModalOpen, setIsSetPasswordModalOpen] = useState(false);
     const [isVerificationModalOpen, setIsVerificationModalOpen] = useState(false);
+    const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
     const navigate = useNavigate();
     const location = useLocation();
     const dropdownRef = useRef(null);
-
-    // const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
-
   
     const handleLogout = async() => {
         await logout();
@@ -61,6 +60,7 @@ const Navbar = ({ setIsSidebarOpen }) => {
         setIsResetPasswordModalOpen(path === "/auth/reset-password");
         setIsSetPasswordModalOpen(path === "/auth/set-password");
         setIsVerificationModalOpen(path === "/auth/verify");
+        setIsProfileModalOpen(path === "/profile");
 
     }, [location.pathname]);
 
@@ -196,6 +196,7 @@ const Navbar = ({ setIsSidebarOpen }) => {
             <ResetPasswordModal isOpen={isResetPasswordModalOpen} onClose={() => navigate("/")} />
             <SetPasswordModal isOpen={isSetPasswordModalOpen} onClose={() => navigate("/")} />
             <VerificationModal isOpen={isVerificationModalOpen} onClose={() => navigate("/")} />
+            <ProfileModal isOpen={isProfileModalOpen} onClose={() => navigate("/")} />
         </div>
     );
 };

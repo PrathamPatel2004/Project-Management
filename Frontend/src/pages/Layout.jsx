@@ -11,8 +11,15 @@ const Layout = () => {
 
     if (loading) {
         return (
-            <div className='flex items-center justify-center h-screen bg-white dark:bg-zinc-950'>
-                <ReplayIcon className="size-9 text-blue-500 animate-spin" />
+            <div
+                className={`flex items-center justify-center h-screen bg-white dark:bg-zinc-950 transition-opacity duration-500 ${
+                    loading ? "opacity-100" : "opacity-0"
+                }`}
+            >
+                <div className="flex flex-col items-center gap-4">
+                    <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+                    <p className="text-gray-600 font-medium">Loading...</p>
+                </div>
             </div>
         )
     }

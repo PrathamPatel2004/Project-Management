@@ -50,6 +50,7 @@ function AppProvider() {
                             <Route path='projects' element={<Projects />} />
                             <Route path='team' element={<Team />} />
                             <Route path='settings' element={<Settings />} />
+                            <Route path='profile' element={<Dashboard />} />
                         </>
                     )}
                     <Route path='/auth/login' element={user ? <Dashboard /> : <Home />} />

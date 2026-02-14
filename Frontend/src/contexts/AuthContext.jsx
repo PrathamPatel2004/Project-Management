@@ -13,6 +13,19 @@ export const useAuth = () => {
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [showLoader, setShowLoader] = useState(true);
+    
+    useEffect(() => {
+        const timer = setTimeout(() => setLoading(false), 500);
+        return () => clearTimeout(timer);
+    }, []);
+    
+    useEffect(() => {
+        if (!loading) {
+            const timeout = setTimeout(() => setShowLoader(false), 500);
+            return () => clearTimeout(timeout);
+        }
+    }, [loading]);
 
     useEffect(() => {
         const restoreSession = async () => {
@@ -76,12 +89,9 @@ export const AuthProvider = ({ children }) => {
     const logout = async () => {
         try {
             await api.post('/api/auth/logout');
-        } finally {
-            localStorage.removeItem("accessToken");
-            setUser(null);
-            window.location.href = "/auth/login";
-        }
-        setUser(null);
+        } catch {}    
+        localStorage.removeItem("accessToken");
+        setUser(null); 
     }
 
     return (
