@@ -4,17 +4,21 @@ import toast from "react-hot-toast"
 import api from "../api/axios"
 import { useDispatch } from "react-redux"
 import { addWorkspace } from "../features/workspaceSlice"
+import { useCloudinaryUpload } from "../hooks/useCloudinaryUpload"
 
 const CreateWorkspaceModal = ({ onClose }) => {
 
     const [name, setName] = useState("")
     const [slug, setSlug] = useState("")
+    const [description, setDescription] = useState("")
     const [logoFile, setLogoFile] = useState(null)
     const [preview, setPreview] = useState(null)
     const [loading, setLoading] = useState(false)
 
     const fileRef = useRef(null)
     const dispatch = useDispatch()
+
+    const { uploadFiles, progress, uploading } = useCloudinaryUpload()
 
     useEffect(() => {
         const newSlug = name
@@ -31,9 +35,20 @@ const CreateWorkspaceModal = ({ onClose }) => {
         return () => window.removeEventListener("keydown", handler)
     }, [onClose])
 
+    useEffect(() => {
+        return () => {
+            if (preview) URL.revokeObjectURL(preview)
+        }
+    }, [preview])
+
     const handleFileChange = (e) => {
         const file = e.target.files[0]
         if (!file) return
+
+        if (!file.type.startsWith("image/")) {
+            toast.error("File must be an image")
+            return
+        }
 
         if (file.size > 10 * 1024 * 1024) {
             toast.error("Image must be under 10MB")
@@ -47,36 +62,39 @@ const CreateWorkspaceModal = ({ onClose }) => {
     const handleSubmit = async (e) => {
         e.preventDefault()
 
-        if (!name.trim()) {
-            toast.error("Organization name is required")
-            return
-        }
+        if (!name.trim()) return toast.error("Organization name is required")
 
-        if (!slug.trim()) {
-            toast.error("Slug is required")
-            return
-        }
+        if (!slug.trim()) return toast.error("Slug is required")
+
+        let uploaded = []
 
         try {
             setLoading(true)
 
-            const formData = new FormData()
-            formData.append("name", name)
-            formData.append("slug", slug)
-            if (logoFile) formData.append("logo", logoFile)
-
-            const { data } = await api.post(
-                "/api/workspace/create",
-                formData,
-                { headers: { "Content-Type": "multipart/form-data" } }
-            )
+            if (logoFile) {
+                uploaded = await uploadFiles([logoFile], `workspaces/${slug}`)
+            }
+            const { data } = await api.post("/api/workspace/create", {
+                name,
+                slug,
+                description,
+                logo: uploaded[0]?.url || null,
+            })
 
             dispatch(addWorkspace(data))
             toast.success("Organization created successfully")
             onClose()
-
         } catch (err) {
             toast.error(err.response?.data?.message || "Failed to create organization")
+            if (uploaded.length) {
+                try {
+                    await api.post("/api/upload/cleanup", {
+                        publicIds: uploaded.map(i => i.publicId),
+                    })
+                } catch {
+                    console.warn("Cleanup failed")
+                }
+            }
         } finally {
             setLoading(false)
         }
@@ -97,7 +115,7 @@ const CreateWorkspaceModal = ({ onClose }) => {
                 <h2 className="text-lg font-semibold mb-4">Create Organization</h2>
 
                 <form onSubmit={handleSubmit} className="space-y-4">
-
+ 
                     <div className="flex items-center gap-4">
                         <div
                             onClick={() => fileRef.current.click()}
@@ -122,6 +140,13 @@ const CreateWorkspaceModal = ({ onClose }) => {
                             >
                                 Upload
                             </button>
+
+                            {uploading && (
+                                <span className="text-xs text-blue-500">
+                                    Uploading: {progress[0] || 0}%
+                                </span>
+                            )}
+
                             <p className="text-xs text-gray-400 mt-1">
                                 Recommended size 1:1, up to 10MB
                             </p>
@@ -154,12 +179,23 @@ const CreateWorkspaceModal = ({ onClose }) => {
                             placeholder="organization-name"
                             className="w-full border border-gray-300 dark:border-neutral-700 rounded px-3 py-2 mt-1 bg-transparent focus:outline-none focus:ring-2 focus:ring-blue-500"
                         />
-                        {/* <p className="text-xs text-gray-400 mt-1">
+                        <p className="text-xs text-gray-400 mt-1">
                             Used in URLs: yourapp.com/{slug || "organization"}
-                        </p> */}
+                        </p>
+                    </div>
+
+                    <div>
+                        <label className="text-sm font-medium">Description</label>
+                        <textarea
+                            value={description}
+                            onChange={(e) => setDescription(e.target.value)}
+                            placeholder="Describe your organization"
+                            className="w-full border border-gray-300 dark:border-neutral-700 rounded px-3 py-2 mt-1 bg-transparent focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        />
                     </div>
 
                     <div className="flex justify-end gap-3 pt-2">
+
                         <button
                             type="button"
                             onClick={onClose}
@@ -167,10 +203,10 @@ const CreateWorkspaceModal = ({ onClose }) => {
                         >
                             Cancel
                         </button>
-
+    
                         <button
                             type="submit"
-                            disabled={loading}
+                            disabled={loading || uploading}
                             className="px-4 py-2 text-sm bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                             {loading ? "Creating..." : "Create"}

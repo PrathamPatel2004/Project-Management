@@ -28,9 +28,9 @@ function MyTasksSidebar() {
     }
 
     const fetchUserTasks = () => {
-        const userId = user?.id || '';  //replace with "user.id" only
+        const userId = user?.id || '';
         if (!currentWorkspace) return;
-        const currentWorkspaceTasks = currentWorkspace.projects.flatmap((project) => {
+        const currentWorkspaceTasks = currentWorkspace.projects.flatMap((project) => {
             return project.tasks.filter((task) => task?.assignee?.id === userId);
         })
 

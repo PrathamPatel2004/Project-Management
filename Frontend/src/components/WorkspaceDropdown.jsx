@@ -37,6 +37,16 @@ function WorkspaceDropdown() {
         return () => document.removeEventListener("mousedown", handleClickOutside)
     }, [])
 
+    useEffect(() => {
+        if (!currentWorkspace && workspaces.length) {
+            dispatch(setCurrentWorkspace(workspaces[0].id))
+        }
+    }, [currentWorkspace, workspaces, dispatch])
+
+    useEffect(() => {
+        if (showCreateModal) setIsOpen(false)
+    }, [showCreateModal])
+
     return (
         <>
             <div className="relative m-4" ref={dropdownRef}>
@@ -48,7 +58,7 @@ function WorkspaceDropdown() {
                         <img
                             src={currentWorkspace?.image_url || "/no-image.png"}
                             alt=""
-                            className="w-8 h-8 rounded"
+                            className="w-8 h-8 rounded object-cover"
                         />
                         <div className="text-left min-w-0">
                             <p className="font-semibold text-sm truncate">
@@ -62,7 +72,6 @@ function WorkspaceDropdown() {
                     <ExpandMoreIcon fontSize="small" />
                 </button>
 
-                {/* Dropdown */}
                 {isOpen && (
                     <div className="absolute z-50 w-64 bg-white dark:bg-neutral-900 border border-gray-200 dark:border-neutral-700 rounded shadow top-full left-0">
 
@@ -88,7 +97,9 @@ function WorkspaceDropdown() {
                                         onClick={() => onSelectWorkspace(ws.id)}
                                         className="min-h-8 max-h-16 flex items-center gap-3 p-2 cursor-pointer rounded hover:bg-gray-100 dark:hover:bg-neutral-800"
                                     >
-                                        <img src={ws.image_url} className="w-6 h-6 rounded" />
+                                        <img 
+                                            src={ws.image_url || "/no-image.png"}
+                                            className="w-6 h-6 rounded" />
                                         <div className="flex-1 min-w-0">
                                             <p className="text-sm truncate">{ws.name}</p>
                                         </div>

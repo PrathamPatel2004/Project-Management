@@ -1,13 +1,23 @@
-import React, { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Sidebar from '../components/Sidebar';
 import Navbar from '../components/Navbar';
 import { Outlet } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import ReplayIcon from '@mui/icons-material/Replay';
+import { useDispatch, useSelector } from 'react-redux'
+import { fetchWorkspaces } from '../features/workspaceSlice';
 
 const Layout = () => {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const { loading, user } = useAuth();
+
+    const dispatch = useDispatch()
+    const { workspaces, loading: wsLoading } = useSelector((state) => state.workspace)
+
+    useEffect(() => {
+        if (!loading && user && !workspaces.length) {
+            dispatch(fetchWorkspaces())
+        }
+    }, [loading, user, workspaces.length, dispatch])
 
     if (loading) {
         return (
@@ -29,6 +39,12 @@ const Layout = () => {
             <Sidebar isSidebarOpen={isSidebarOpen} setIsSidebarOpen={setIsSidebarOpen} />
             <div className="flex-1 flex flex-col h-screen">
                 <Navbar isSidebarOpen={isSidebarOpen} setIsSidebarOpen={setIsSidebarOpen} />
+
+                {wsLoading && (
+                    <div className="px-6 py-2 text-xs text-gray-500">
+                        Loading workspaces...
+                    </div>
+                )}
                 <div className="flex-1 h-full p-6 xl:p-10 xl:px-16 overflow-y-scroll">
                     <Outlet />
                 </div>
