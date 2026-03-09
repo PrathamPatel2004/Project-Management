@@ -74,11 +74,11 @@ const CreateWorkspaceModal = ({ onClose }) => {
             if (logoFile) {
                 uploaded = await uploadFiles([logoFile], `workspaces/${slug}`)
             }
-            const { data } = await api.post("/api/workspace/create", {
+            const { data } = await api.post("/api/workspace/create-workspace", {
                 name,
                 slug,
                 description,
-                logo: uploaded[0]?.url || null,
+                image_url: uploaded[0]?.url || null,
             })
 
             dispatch(addWorkspace(data))
@@ -103,8 +103,6 @@ const CreateWorkspaceModal = ({ onClose }) => {
     return (
         <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center px-4">
             <div className="bg-white dark:bg-neutral-900 w-full max-w-md rounded-xl shadow-lg p-6 relative">
-
-                {/* Close */}
                 <button
                     onClick={onClose}
                     className="absolute right-4 top-4 text-gray-500 hover:text-black dark:hover:text-white"

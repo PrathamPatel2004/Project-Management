@@ -9,7 +9,7 @@ function RecentActivity() {
     const getCurrentWorkspaceTasks = () => {
         if (!currentWorkspace) return ;
 
-        const tasks = currentWorkspace.projects.flatMap((project) => project.tasks.map((task) => task));
+        const tasks = currentWorkspace.projects?.flatMap((project) => project.tasks.map((task) => task));
         setTasks(tasks);
     }
 
@@ -37,7 +37,7 @@ function RecentActivity() {
             </div>
 
             <div className="p-0">
-                {tasks.length === 0 ? (
+                {tasks?.length === 0 ? (
                     <div className="p-12 text-center">
                         <div className="flex justify-center items-center w-16 h-16 mx-auto mb-4 bg-neutral-200 dark:bg-neutral-800 rounded-full">
                             <AccessAlarmIcon className="w-8 h-8 text-neutral-600 dark:text-neutral-500" />
@@ -46,7 +46,7 @@ function RecentActivity() {
                     </div>
                 ) : (
                     <div className="divide-y divide-neutral-200 dark:divide-neutral-800">
-                        {tasks.map((task) => {
+                        {tasks?.map((task) => {
                             const typeIcon = typeIcons[task.type]?.icon || typeIcons['OTHER'];
                             const iconColor = typeIcons[task.type]?.color || typeIcons['OTHER'].color;
 

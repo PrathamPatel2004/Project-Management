@@ -56,20 +56,19 @@ function StatsGrid() {
     useEffect(() => {
         if (currentWorkspace) {
             setStats({
-                totalProjects : currentWorkspace.projects.length,
-                activeProjects : currentWorkspace.projects.filter(
+                totalProjects : currentWorkspace.projects?.length,
+                activeProjects : currentWorkspace.projects?.filter(
                     (p) => p.status !== "COMPLETED" && p.status !== "CANCELLED"
                 ).length,
-                completedProjects : currentWorkspace.projects
-                    .filter((p) => p.status === "COMPLETED")
+                completedProjects : currentWorkspace.projects?.filter((p) => p.status === "COMPLETED")
                     .reduce((acc, project) => acc + project.tasks.length, 0),
-                myTasks : currentWorkspace.projects.reduce(
+                myTasks : currentWorkspace.projects?.reduce(
                     (acc, project) => acc + project.tasks.filter(
                         (t) => t.assignee?.email === currentWorkspace.owner.email
                     ).length,
                     0
                 ),
-                overdueIssues : currentWorkspace.projects.reduce(
+                overdueIssues : currentWorkspace.projects?.reduce(
                     (acc, project) =>
                         acc + project.tasks.filter((t) => t.due_date < new Date()).length,
                     0        

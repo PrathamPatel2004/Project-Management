@@ -50,28 +50,42 @@ function WorkspaceDropdown() {
     return (
         <>
             <div className="relative m-4" ref={dropdownRef}>
-                <button
-                    onClick={() => setIsOpen(prev => !prev)}
-                    className="w-full flex items-center justify-between p-3 rounded hover:bg-gray-100 dark:hover:bg-neutral-800"
-                >
-                    <div className="flex items-center gap-3">
-                        <img
-                            src={currentWorkspace?.image_url || "/no-image.png"}
-                            alt=""
-                            className="w-8 h-8 rounded object-cover"
-                        />
-                        <div className="text-left min-w-0">
-                            <p className="font-semibold text-sm truncate">
-                                {currentWorkspace?.name || "Select Workspace"}
-                            </p>
-                            <p className="text-xs text-gray-500 dark:text-neutral-400">
-                                {workspaces.length} workspace{workspaces.length !== 1 ? "s" : ""}
-                            </p>
-                        </div>
-                    </div>
-                    <ExpandMoreIcon fontSize="small" />
-                </button>
+                {workspaces.length === 0 ? (
+                    <button
+                        onClick={() => {
+                            setIsOpen(false)
+                            setShowCreateModal(true)
+                        }}
+                        className="w-full flex items-center p-3 rounded hover:bg-gray-100 dark:hover:bg-neutral-800 gap-3"
+                    >
+                        <AddIcon fontSize="small" />
+                        Create Workspace
+                    </button>
+                ) : (
+                    <button
+                        onClick={() => setIsOpen(prev => !prev)}
+                        className="w-full flex items-center justify-between p-3 rounded hover:bg-gray-100 dark:hover:bg-neutral-800"
+                    >
+                        <div className="flex items-center gap-3">
+                            <img
+                                src={currentWorkspace?.image_url || "/no-image.png"}
+                                className="w-8 h-8 rounded object-cover"
+                            />
 
+                            <div className="text-left min-w-0">
+                                <p className="font-semibold text-sm truncate">
+                                    {currentWorkspace?.name || "Select Workspace"}
+                                </p>
+
+                                <p className="text-xs text-gray-500 dark:text-neutral-400">
+                                    {workspaces.length} workspace{workspaces.length !== 1 ? "s" : ""}
+                                </p>
+                            </div>
+                        </div>
+
+                        <ExpandMoreIcon fontSize="small" />
+                    </button>
+                )}
                 {isOpen && (
                     <div className="absolute z-50 w-64 bg-white dark:bg-neutral-900 border border-gray-200 dark:border-neutral-700 rounded shadow top-full left-0">
 

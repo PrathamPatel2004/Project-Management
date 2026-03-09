@@ -6,6 +6,8 @@ dotenv.config();
 
 import connectDB from "./config/connnectDB.js";
 import userRouter from "./routes/user.route.js";
+import workspaceRouter from "./routes/workspace.route.js";
+import uploadRouter from "./routes/upload.routes.js";
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -23,6 +25,8 @@ app.get("/", (req, res) => {
 })
 
 app.use('/api/auth', userRouter);
+app.use('/api/upload', uploadRouter);
+app.use('/api/workspace', workspaceRouter);
 
 connectDB().then(() => {
     app.listen(PORT, () => {
