@@ -8,12 +8,11 @@ const projectSchema = new mongoose.Schema({
     start_date: { type: Date, default: null },
     end_date: { type: Date, default: null },
     team_lead: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-    workspaceId: { type: mongoose.Schema.Types.ObjectId, ref: 'Workspace', required: true },
+    workspace: { type: mongoose.Schema.Types.ObjectId, ref: 'Workspace', required: true },
     progress: { type: Number, default: 0 },
-    createdAt: { type: Date, default: Date.now },
-    updatedAt: { type: Date, default: Date.now },
 }, { timestamps: true });
 
+projectSchema.index({ workspace: 1 });
 const ProjectModel = mongoose.model('Project', projectSchema);
 
 export default ProjectModel;

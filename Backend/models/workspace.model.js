@@ -5,9 +5,7 @@ const workspaceSchema = new mongoose.Schema({
     slug: { type: String, required: true, unique: true },
     description: { type: String, default: "" },
     settings: { type: Object, default: {} },
-    createdAt: { type: Date, default: Date.now },
     image_url: { type: String, default: "" },
-    updatedAt: { type: Date, default: Date.now },
     owner: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true }
 }, { timestamps: true });
 

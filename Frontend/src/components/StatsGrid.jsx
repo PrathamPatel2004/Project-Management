@@ -1,19 +1,40 @@
-import { useEffect, useState } from "react";
+import { useMemo } from "react";
 import { useSelector } from "react-redux";
-import VerifiedIcon from '@mui/icons-material/Verified';
-import FolderOpenIcon from '@mui/icons-material/FolderOpen';
-import AssignmentIcon from '@mui/icons-material/Assignment';
-import WarningAmberIcon from '@mui/icons-material/WarningAmber';
+import VerifiedIcon from "@mui/icons-material/Verified";
+import FolderOpenIcon from "@mui/icons-material/FolderOpen";
+import AssignmentIcon from "@mui/icons-material/Assignment";
+import WarningAmberIcon from "@mui/icons-material/WarningAmber";
 
 function StatsGrid() {
-    const currentWorkspace = useSelector((state) => state.workspace?.currentWorkspace || null);
-    const [stats, setStats] = useState({
-        totalProjects : 0,
-        activeProjects : 0,
-        completedProjects : 0,
-        myTasks : 0,
-        overdueIssues : 0,
-    })
+    const currentWorkspace = useSelector((state) => state.workspace?.currentWorkspace);
+    const { projects = [] } = useSelector((state) => state.projects || {});
+    const stats = useMemo(() => {
+        const totalProjects = projects.length;
+        const activeProjects = projects.filter(
+            (p) => p.status !== "COMPLETED" && p.status !== "CANCELLED"
+        ).length;
+        const tasks = projects.flatMap((p) => p.tasks || []);
+        const completedTasks = tasks.filter(
+            (t) => t.status === "DONE"
+        ).length;
+        const myTasks = tasks.filter(
+            (t) => t.assigneeId === currentWorkspace?.owner
+        ).length;
+        const overdueIssues = tasks.filter(
+            (t) =>
+                t.due_date &&
+                new Date(t.due_date) < new Date() &&
+                t.status !== "DONE"
+        ).length;
+
+        return {
+            totalProjects,
+            activeProjects,
+            completedTasks,
+            myTasks,
+            overdueIssues,
+        };
+    }, [projects, currentWorkspace]);
 
     const statCards = [
         {
@@ -29,8 +50,8 @@ function StatsGrid() {
         {
             icon: VerifiedIcon,
             title: "Completed Tasks",
-            value: stats.completedProjects,
-            subtitle: `of ${stats.totalProjects} projects`,
+            value: stats.completedTasks,
+            subtitle: `in ${stats.totalProjects} projects`,
             bgColor: "bg-emerald-500/10",
             textColor: "text-emerald-500",
         },
@@ -38,7 +59,7 @@ function StatsGrid() {
             icon: AssignmentIcon,
             title: "My Tasks",
             value: stats.myTasks,
-            subtitle: "assigned to me",
+            subtitle: "tasks assigned to me",
             bgColor: "bg-purple-500/10",
             textColor: "text-purple-500",
         },
@@ -46,36 +67,11 @@ function StatsGrid() {
             icon: WarningAmberIcon,
             title: "Overdue",
             value: stats.overdueIssues,
-            subtitle: "need attention",
+            subtitle: "task need attention",
             bgColor: "bg-amber-500/10",
             textColor: "text-amber-500",
         },
     ];
-
-
-    useEffect(() => {
-        if (currentWorkspace) {
-            setStats({
-                totalProjects : currentWorkspace.projects?.length,
-                activeProjects : currentWorkspace.projects?.filter(
-                    (p) => p.status !== "COMPLETED" && p.status !== "CANCELLED"
-                ).length,
-                completedProjects : currentWorkspace.projects?.filter((p) => p.status === "COMPLETED")
-                    .reduce((acc, project) => acc + project.tasks.length, 0),
-                myTasks : currentWorkspace.projects?.reduce(
-                    (acc, project) => acc + project.tasks.filter(
-                        (t) => t.assignee?.email === currentWorkspace.owner.email
-                    ).length,
-                    0
-                ),
-                overdueIssues : currentWorkspace.projects?.reduce(
-                    (acc, project) =>
-                        acc + project.tasks.filter((t) => t.due_date < new Date()).length,
-                    0        
-                ),
-            });
-        }
-    }, [currentWorkspace]);
     
     return (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 my-9">

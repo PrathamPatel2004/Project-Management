@@ -30,7 +30,7 @@ function ProjectCard({ project }) {
 
     return (
         <Link
-            to={`/projectsDetail?id=${project.id}&tab=tasks`}
+            to={`/projectsDetail?id=${project._id}&tab=tasks`}
             className="bg-white dark:bg-neutral-950 border border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700 rounded-lg transition-all duration-200 p-5 group hover:shadow-sm"
         >
             {/* Title + Status */}

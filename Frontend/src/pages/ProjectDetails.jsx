@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useSelector } from "react-redux";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
@@ -10,14 +10,14 @@ import ElectricBoltIcon from '@mui/icons-material/ElectricBolt';
 import SettingsIcon from '@mui/icons-material/Settings';
 
 function ProjectDetails() {
-
     const [searchParams, setSearchParams] = useSearchParams();
     const tab = searchParams.get("tab");
     const id = searchParams.get("id");
 
     const navigate = useNavigate();
 
-    const projects = useSelector((state) => state.workspace?.currentWorkspace?.projects) || [];
+    const currentWorkspace = useSelector((state) => state.workspace?.currentWorkspace);
+    const { projects = [] } = useSelector((state) => state.projects || {});
 
     const [showCreateTask, setShowCreateTask] = useState(false);
     const [activeTab, setActiveTab] = useState(tab || "tasks");
@@ -30,18 +30,23 @@ function ProjectDetails() {
 
     const project = useMemo(() => {
         if (!id) return null;
-        return projects.find((proj) => proj.id === id) || null;
-    }, [id, projects])
+        return projects.find(
+            (proj) => proj._id === id || proj.id === id
+        ) || null;
+    }, [id, projects]);
 
     const tasks = useMemo(() => {
         return project?.tasks || [];
     }, [project]);
 
     const taskStats = useMemo(() => {
-        const completed = tasks.filter((task) => task.status === "DONE").length;
-        const inProgress = tasks.filter((task) => task.status === "IN_PROGRESS" || task.status === "TODO").length;
-
-        return { 
+        const completed = tasks.filter(
+            (task) => task.status === "DONE"
+        ).length;
+        const inProgress = tasks.filter(
+            (task) => task.status === "IN_PROGRESS" || task.status === "TODO"
+        ).length;
+        return {
             total: tasks.length,
             completed,
             inProgress,
@@ -49,11 +54,12 @@ function ProjectDetails() {
     }, [tasks]);
 
     const statusColors = {
-        PLANNING: "bg-neutral-200 text-neutral-900 dark:bg-neutral-600 dark:text-neutral-200",
-        ACTIVE: "bg-emerald-200 text-emerald-900 dark:bg-emerald-500 dark:text-emerald-900",
-        ON_HOLD: "bg-amber-200 text-amber-900 dark:bg-amber-500 dark:text-amber-900",
-        COMPLETED: "bg-blue-200 text-blue-900 dark:bg-blue-500 dark:text-blue-900",
-        CANCELLED: "bg-red-200 text-red-900 dark:bg-red-500 dark:text-red-900",
+        Idea: "bg-neutral-200 text-neutral-900 dark:bg-neutral-600 dark:text-neutral-200",
+        Planning: "bg-blue-200 text-blue-900 dark:bg-blue-500 dark:text-blue-900",
+        "In Progress": "bg-emerald-200 text-emerald-900 dark:bg-emerald-500 dark:text-emerald-900",
+        "On Hold": "bg-amber-200 text-amber-900 dark:bg-amber-500 dark:text-amber-900",
+        Completed: "bg-green-200 text-green-900 dark:bg-green-500 dark:text-green-900",
+        Cancelled: "bg-red-200 text-red-900 dark:bg-red-500 dark:text-red-900",
     };
 
     if (!project) {
@@ -103,7 +109,7 @@ function ProjectDetails() {
                 ].map((item) => (
                     <div
                         key={item.label}
-                        className="border border-neutral-200 dark:border-neutral-800 rounded p-4 flex justify-between"
+                        className="border border-neutral-200 dark:border-neutral-800 rounded p-4 flex justify-between gap-2"
                     >
                         <div>
                             <p className="text-sm text-neutral-500">{item.label}</p>
@@ -113,7 +119,6 @@ function ProjectDetails() {
                     </div>
                 ))}
             </div>
-
             <div className="inline-flex flex-wrap gap-2 border rounded">
                 {[
                     { key: "tasks", label: "Tasks", icon: FolderCopyIcon },
@@ -129,8 +134,8 @@ function ProjectDetails() {
                         }}
                         className={`px-4 py-2 text-sm flex items-center gap-2 ${
                             activeTab === t.key
-                                ? "bg-neutral-100 dark:bg-neutral-800"
-                                : "hover:bg-neutral-50 dark:hover:bg-neutral-700"
+                                ? "text-blue-400 dark:text-blue-600"
+                                : "hover:text-blue-500 dark:hover:text-blue-700"
                         } rounded`}
                     >
                         <t.icon className="size-3.5" /> {t.label}

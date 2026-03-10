@@ -9,9 +9,9 @@ import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 
 function ProjectOverview() {
-    const currentWorkspace = useSelector((state) => state.workspace?.currentWorkspace || null);
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [projects, setProjects] = useState([]);
+    const currentWorkspace = useSelector((state) => state.workspace?.currentWorkspace);
+    const { projects = [] } = useSelector((state) => state.projects || {});
 
     const statusColors = {
         PLANNING: "bg-neutral-200 text-neutral-800 dark:bg-neutral-600 dark:text-neutral-200",
@@ -27,16 +27,18 @@ function ProjectOverview() {
         HIGH: "border-green-300 text-green-700 dark:border-green-500 dark:text-green-400",
     };
 
-    useEffect(() => {
-        setProjects(currentWorkspace?.projects || []);
-    }, [currentWorkspace]);
-
+    const getProgressColor = (progress) => {
+        if (progress >= 75) return "bg-green-500";
+        if (progress >= 50) return "bg-amber-500";
+        if (progress >= 25) return "bg-yellow-500";
+        if (progress > 0) return "bg-red-500";
+    }
     return (
         <div className='bg-white dark:bg-neutral-950 border border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700 transition-all duration-200 rounded-lg overflow-hidden'>
             <div className='flex justify-between items-center border-b border-neutral-200 dark:border-neutral-800 p-4'>
                 <h2 className='text-md text-neutral-800 dark:text-neutral-300'>Project Overview</h2>
-                <Link to={'/projects'} className='text-sm flex items-center text-neutral-600 hover:text-neutral-700 dark:text-neutral-400 dark:hover:text-neutral-300 '>
-                    View All <ArrowForwardIcon className="text-gray-500 dark:text-neutral-400" fontSize="small" />
+                <Link to={'/projects'} className='text-sm flex items-center text-neutral-600 hover:text-neutral-700 dark:text-neutral-400 dark:hover:text-neutral-300 gap-2'>
+                    View All <ArrowForwardIcon className="text-gray-500 dark:text-neutral-400 mt-1" fontSize="small" />
                 </Link>
             </div>
 

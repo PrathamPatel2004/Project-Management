@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useAuth } from '../contexts/AuthContext';
 import { useSelector } from "react-redux";
 import AssignmentIcon from '@mui/icons-material/Assignment';
@@ -7,40 +7,36 @@ import PendingIcon from '@mui/icons-material/Pending';
 
 function TaskSummary() {
     const { user } = useAuth();
-    const { currentWorkspace } = useSelector((state) => state.workspace);
-    const [tasks, setTasks] = useState([]);
+    const { projects } = useSelector((state) => state.projects);
+    const tasks = useMemo(() => {
+        return projects.flatMap((project) => project.tasks || []) || [];
+    }, [projects]);
 
-    useEffect(() => {
-        if(currentWorkspace) {
-            setTasks(currentWorkspace.projects?.flatMap((project) => project.tasks));
-        }
-    }, [currentWorkspace]);
-
-    const myTasks = tasks?.filter(i => i.assigneeId === user.id);
-    const overdueTasks = tasks?.filter(t => t.due_date && new Date(t.due_date) < new Date() && t.status !== "DONE");
-    const inProgressTasks = tasks?.filter(i => i.status === "IN_PROGRESS");
+    const myTasks = tasks.filter(i => i.assigneeId === user.id);
+    const overdueTasks = tasks.filter(t => t.due_date && new Date(t.due_date) < new Date() && t.status !== "DONE");
+    const inProgressTasks = tasks.filter(i => i.status === "IN_PROGRESS");
 
     const summaryCards = [
         {
             title: 'My Tasks',
-            count: myTasks?.length,
+            count: myTasks.length,
             icon: AssignmentIcon,
             color: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-400',
-            items: myTasks?.slice(0, 3)
+            items: myTasks.slice(0, 3)
         },
         {
             title: 'Overdue',
-            count: overdueTasks?.length,
+            count: overdueTasks.length,
             icon: WarningAmberIcon,
             color: 'bg-red-100 text-red-800 dark:bg-red-950 dark:text-red-400',
-            items: overdueTasks?.slice(0, 3)
+            items: overdueTasks.slice(0, 3)
         },
         {
             title: 'In Progress',
-            count: inProgressTasks?.length,
+            count: inProgressTasks.length,
             icon: PendingIcon,
             color: 'bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-400',
-            items: inProgressTasks?.slice(0, 3)
+            items: inProgressTasks.slice(0, 3)
         }
     ]
 
@@ -62,13 +58,13 @@ function TaskSummary() {
                         </div>
                     </div>
                     <div className="p-4">
-                        {card.items?.length === 0 ? (
+                        {card.items.length === 0 ? (
                             <p className="text-sm text-gray-500 dark:text-neutral-400 text-center py-4">
                                 No {card.title.toLowerCase()}
                             </p>
                         ) : (
                             <div className="space-y-3">
-                                {card.items?.map((issue) => (
+                                {card.items.map((issue) => (
                                     <div key={issue.id} className="p-3 rounded-lg bg-neutral-50 dark:bg-neutral-900 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors cursor-pointer">
                                         <h4 className="text-sm font-medium text-gray-800 dark:text-white truncate">
                                             {issue.title}

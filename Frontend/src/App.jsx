@@ -9,6 +9,7 @@ import Projects from './pages/Projects';
 import Dashboard from './pages/Dashboard';
 import Team from './pages/Team';
 import Settings from './pages/Settings';
+import ProjectDetails from './pages/ProjectDetails';
 
 function AppProvider() {
     const { user } = useAuth();
@@ -51,6 +52,7 @@ function AppProvider() {
                             <Route path='team' element={<Team />} />
                             <Route path='settings' element={<Settings />} />
                             <Route path='profile' element={<Dashboard />} />
+                            <Route path='projectsDetail' element={<ProjectDetails />} />
                         </>
                     )}
                     <Route path='/auth/login' element={user ? <Dashboard /> : <Home />} />

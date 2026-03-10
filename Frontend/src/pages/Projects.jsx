@@ -7,7 +7,8 @@ import CreateProjectModal from "../components/CreateProjectModal";
 import ProjectCard from "../components/ProjectCard";
 
 function Projects() {
-    const projects = useSelector((state) => state.workspace?.currentWorkspace?.projects) || [];
+    const currentWorkspace = useSelector((state) => state.workspace?.currentWorkspace);
+    const { projects = [] } = useSelector((state) => state.projects || {});
     const [searchTerm, setSearchTerm] = useState("");
     const [isModalOpen, setIsModalOpen] = useState(false);
 

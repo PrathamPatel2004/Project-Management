@@ -57,7 +57,7 @@ export const generateTokens = async (user) => {
     return { accessToken, refreshToken };
 }
 
-export const matchPassword = async ({ user, password}) => {
+export const matchPassword = async ({ user, password }) => {
     if (!user.hashedPassword) return res.status(400).json({ message: "User Password not set, Please set password or login with google login" });
 
     const isMatch = await bcryptjs.compare(password, user.hashedPassword);

@@ -7,6 +7,7 @@ const workspaceMemberSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 workspaceMemberSchema.index({ user: 1, workspace: 1 }, { unique: true });
+workspaceMemberSchema.index({ workspace: 1 });
 const WorkspaceMemberModel = mongoose.model('WorkspaceMember', workspaceMemberSchema);
 
 export default WorkspaceMemberModel;

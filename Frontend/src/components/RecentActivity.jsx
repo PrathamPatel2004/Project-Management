@@ -1,37 +1,38 @@
-import { useEffect, useState } from "react";
+import { useMemo } from "react";
 import { useSelector } from "react-redux";
-import AccessAlarmIcon from '@mui/icons-material/AccessAlarm';
+import { format } from "date-fns";
+
+import AccessAlarmIcon from "@mui/icons-material/AccessAlarm";
+import BugReportIcon from "@mui/icons-material/BugReport";
+import AutoFixHighIcon from "@mui/icons-material/AutoFixHigh";
+import AssignmentIcon from "@mui/icons-material/Assignment";
+import BuildIcon from "@mui/icons-material/Build";
 
 function RecentActivity() {
-    const { currentWorkspace } = useSelector((state) => state.workspace);
-    const [tasks, setTasks] = useState([]);
-
-    const getCurrentWorkspaceTasks = () => {
-        if (!currentWorkspace) return ;
-
-        const tasks = currentWorkspace.projects?.flatMap((project) => project.tasks.map((task) => task));
-        setTasks(tasks);
-    }
-
-    useEffect(() => {
-        getCurrentWorkspaceTasks();
-    }, [currentWorkspace]);
+    const { projects = [] } = useSelector((state) => state.projects || {});
+    const tasks = useMemo(() => {
+        return projects
+            ?.flatMap((project) => project.tasks || [])
+            ?.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))
+            ?.slice(0, 10);
+    }, [projects]);
 
     const typeIcons = {
-        BUG: { icon: '', color: "text-red-500 dark:text-red-400" },
-        FEATURE: { icon: '', color: "text-blue-500 dark:text-blue-400" },
-        TASK: { icon: '', color: "text-green-500 dark:text-green-400" },
-        IMPROVEMENT: { icon: '', color: "text-amber-500 dark:text-amber-400" },
-        OTHER: { icon: '', color: "text-purple-500 dark:text-purple-400" },
-    }
+        BUG: { icon: BugReportIcon, color: "text-red-500 dark:text-red-400" },
+        FEATURE: { icon: AutoFixHighIcon, color: "text-blue-500 dark:text-blue-400" },
+        TASK: { icon: AssignmentIcon, color: "text-green-500 dark:text-green-400" },
+        IMPROVEMENT: { icon: BuildIcon, color: "text-amber-500 dark:text-amber-400" },
+        OTHER: { icon: AssignmentIcon, color: "text-purple-500 dark:text-purple-400" },
+    };
 
     const statusColors = {
-        TODO :"bg-neutral-200 text-neutral-800 dark:bg-neutral-600 dark:text-neutral-200",
+        TODO: "bg-neutral-200 text-neutral-800 dark:bg-neutral-600 dark:text-neutral-200",
         IN_PROGRESS: "bg-amber-200 text-amber-800 dark:bg-amber-500 dark:text-amber-900",
         DONE: "bg-emerald-200 text-emerald-800 dark:bg-emerald-500 dark:text-emerald-900",
-    }
+    };
+
     return (
-        <div className="bg-white dark:bg-neutral-950 border border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700 transition-all duration-200 rounded-lg overflow-hidden">
+        <div className="bg-white dark:bg-neutral-950 border border-neutral-200 dark:border-neutral-800 rounded-lg overflow-hidden">
             <div className="border-b border-neutral-200 dark:border-neutral-800 p-4">
                 <h2 className="text-lg font-semibold text-neutral-800 dark:text-neutral-200">Recent Activity</h2>
             </div>
@@ -49,7 +50,6 @@ function RecentActivity() {
                         {tasks?.map((task) => {
                             const typeIcon = typeIcons[task.type]?.icon || typeIcons['OTHER'];
                             const iconColor = typeIcons[task.type]?.color || typeIcons['OTHER'].color;
-
                             return (
                                 <div key={task.id} className="hover:bg-neutral-50 dark:bg-neutral-900/50 transition-colors p-6">
                                     <div className="flex items-start gap-4">
@@ -82,13 +82,13 @@ function RecentActivity() {
                                         </div>
                                     </div>
                                 </div>
-                            )
+                            );
                         })}
                     </div>
                 )}
             </div>
         </div>
-    )
+    );
 }
 
 export default RecentActivity;
