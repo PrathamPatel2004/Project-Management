@@ -9,15 +9,17 @@ const VerificationModal = ({ isOpen, onClose }) => {
     const { user } = useAuth();
     const [searchParams] = useSearchParams();
     const location = useLocation();
+    const navigate = useNavigate();
+
     const token = searchParams.get("verificationToken");
-    const emailFromState = location.state?.email;
+    // const emailFromState = location.state?.email;
+
     const [verifyError, setVerifyError] = useState("");
     const [resendLoading, setResendLoading] = useState(false);
     const [timer, setTimer] = useState(15);
     const [verifying, setVerifying] = useState(false);
     const [verified, setVerified] = useState(false);
 
-    const navigate = useNavigate();
     const didVerifyRef = useRef(false);
 
     useEffect(() => {
@@ -41,41 +43,49 @@ const VerificationModal = ({ isOpen, onClose }) => {
             setVerifyError("");
 
             try {
-                const { data } = await api.post(`/api/auth/signup-verification`, { verificationToken: token });
+                const inviteToken = location.state?.inviteToken || localStorage.getItem("inviteToken");
+
+                const { data } = await api.post(`/api/auth/signup-verification`, { verificationToken: token, inviteToken });
+                if (inviteToken) {
+                    localStorage.removeItem("inviteToken");
+                }
+
                 toast.success(data.message || "Email verified successfully");
                 setVerified(true);
 
                 setTimeout(() => {
                     onClose();
                     navigate("/auth/login");
-                }, 5000);
+                }, 3000);
             } catch (err) {
                 const msg = err?.response?.data?.message || "Verification failed or link expired";
                 setVerifyError(msg);
+                toast.error(msg);
             } finally {
                 setVerifying(false);
             }
         };
-
         verifyToken();
-    }, [token, isOpen, navigate, onClose]);
+    }, [token, isOpen, navigate, onClose, location.state]);
 
     useEffect(() => {
         if (!isOpen) {
             setVerifyError("");
             setVerified(false);
+            setVerifying(false);
             didVerifyRef.current = false;
+            setTimer(15);
         }
     }, [isOpen]);
 
     const handleResendSubmit = async () => {
         if (timer > 0 || resendLoading) return;
 
-        const email = emailFromState || user?.email;
-        if (!email) {
-            toast.error("Email not found. Please try signing up again.");
-            return;
-        }
+        // const email = emailFromState || user?.email;
+        // if (!email) {
+        //     toast.error("Email not found. Please signup again.");
+        //     return;
+        // }
 
         setResendLoading(true);
         try {
@@ -83,14 +93,19 @@ const VerificationModal = ({ isOpen, onClose }) => {
             toast.success(data.message || "Verification link sent");
             setTimer(15);
         } catch (err) {
-            toast.error(err?.response?.data?.message || "Failed to resend verification link");
+            toast.error(
+                err?.response?.data?.message ||
+                "Failed to resend verification link"
+            );
         } finally {
             setResendLoading(false);
         }
     };
 
-    return isOpen ? (
-        <div className="fixed inset-0 bg-black/20 dark:bg-black/60 backdrop-blur flex items-center justify-center z-50 overflow-y-auto p-4">
+    if (!isOpen) return null;
+
+    return (
+        <div className="fixed inset-0 bg-black/20 dark:bg-black/60 backdrop-blur flex items-center justify-center z-50 p-4">
             <div className="bg-white dark:bg-neutral-950 border border-neutral-200 dark:border-neutral-800 rounded-xl p-6 w-full max-w-lg text-neutral-900 dark:text-neutral-200 relative">
                 <button
                     className="absolute top-3 right-3 text-neutral-500 hover:text-neutral-800 dark:hover:text-white"
@@ -99,7 +114,9 @@ const VerificationModal = ({ isOpen, onClose }) => {
                     <CloseIcon className="size-5" />
                 </button>
 
-                <h2 className="text-xl font-medium mb-4">Email Verification</h2>
+                <h2 className="text-xl font-medium mb-4">
+                    Email Verification
+                </h2>
 
                 {token && verifying && (
                     <p className="text-sm text-neutral-500 dark:text-neutral-400">
@@ -110,10 +127,10 @@ const VerificationModal = ({ isOpen, onClose }) => {
                 {verified && (
                     <div className="space-y-3">
                         <p className="text-green-600 font-medium">
-                            Your email has been successfully verified!
+                            🎉 Email verified successfully!
                         </p>
                         <p className="text-sm text-neutral-500 dark:text-neutral-400">
-                            Redirecting you to login...
+                            Redirecting you to dashboard...
                         </p>
                     </div>
                 )}
@@ -129,34 +146,35 @@ const VerificationModal = ({ isOpen, onClose }) => {
                 {!token && !verified && (
                     <div className="space-y-4">
                         <p className="text-sm text-neutral-500 dark:text-neutral-400">
-                            Please check your email for a verification link. If you don&apos;t see it, check your spam folder.
+                            Please check your email for a verification link.
+                            If you don&apos;t see it, check your spam folder.
                         </p>
 
                         {timer > 0 ? (
                             <p className="text-sm text-neutral-500 dark:text-neutral-400">
-                                You can resend verification link in {timer} seconds
+                                You can resend in {timer}s
                             </p>
                         ) : (
                             <p className="text-sm text-neutral-500 dark:text-neutral-400">
-                                Click the button below to resend verification link
+                                Didn’t receive it? Resend below.
                             </p>
                         )}
 
-                        <div className="flex justify-end py-2 text-sm">
+                        <div className="flex justify-end">
                             <button
                                 type="button"
                                 onClick={handleResendSubmit}
                                 disabled={resendLoading || timer > 0}
-                                className="px-6 py-2 rounded bg-gradient-to-br from-blue-500 to-blue-600 text-white disabled:opacity-50 disabled:cursor-not-allowed"
+                                className="px-6 py-2 rounded bg-gradient-to-br from-blue-500 to-blue-600 text-white disabled:opacity-50"
                             >
-                                {resendLoading ? "Sending..." : "Resend Verification Link"}
+                                {resendLoading ? "Sending..." : "Resend Link"}
                             </button>
                         </div>
                     </div>
                 )}
             </div>
         </div>
-    ) : null;
+    );
 };
 
 export default VerificationModal;

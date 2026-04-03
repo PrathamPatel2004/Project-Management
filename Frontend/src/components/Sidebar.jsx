@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
 import { Link, NavLink } from "react-router-dom";
+import SidebarDropdown from "./SidebarDropdown"
 import MyTasksSidebar from "./MyTasksSidebar";
 import ProjectSidebar from "./ProjectSidebar";
 import FolderOpenIcon from '@mui/icons-material/FolderOpen';
@@ -22,13 +23,6 @@ function Sidebar({ isSidebarOpen, setIsSidebarOpen }) {
         { name: 'FAQ', href: '/faq' }
     ]
 
-    const MenuItems = [
-        { name: 'Dashboard', href: '/', icon: DashboardIcon },
-        { name: 'Projects', href: '/projects', icon: FolderOpenIcon },
-        { name: 'Team', href: '/team', icon: GroupsIcon },
-        { name: 'Settings', href: '/settings', icon: SettingsIcon }
-    ]
-    
     useEffect(() => {
         function handleClickOutside(event) {
             if (sidebarRef.current && !sidebarRef.current.contains(event.target)) {
@@ -46,7 +40,7 @@ function Sidebar({ isSidebarOpen, setIsSidebarOpen }) {
                     <WorkspaceDropdown />
                     <hr className="border-gray-200 dark:border-neutral-700" />
                     <div className="flex-1 overflow-y-scroll scroll-no flex flex-col">
-                        <div className="p-4">
+                        {/* <div className="p-4">
                             {MenuItems.map((item) => {
                                 return (
                                     <NavLink to={item.href} key={item.name} className={({ isActive }) => `flex items-center gap-3 py-2 px-4 text-gray-800 dark:text-neutral-100 cursor-pointer rounded transition-all  ${isActive ? 'bg-gray-100 dark:bg-neutral-900 dark:bg-gradient-to-br dark:from-neutral-800 dark:to-neutral-800/50  dark:ring-neutral-800' : 'hover:bg-gray-50 dark:hover:bg-neutral-800/60'}`}>
@@ -55,10 +49,58 @@ function Sidebar({ isSidebarOpen, setIsSidebarOpen }) {
                                     </NavLink>
                                 )
                             })}
-                        </div>
+                        </div> */}
 
-                        <MyTasksSidebar />
-                        <ProjectSidebar />
+                        <SidebarDropdown
+                            title="Dashboard"
+                            icon={DashboardIcon}
+                            basePath="/dashboard"
+                            routes={[
+                                { name: "Overview", path: "/dashboard" },
+                                { name: "Activity", path: "/dashboard/activity" },
+                                { name: "Reports", path: "/dashboard/reports" }
+                            ]}
+                        />
+
+                        <SidebarDropdown
+                            title="Projects"
+                            icon={FolderOpenIcon}
+                            basePath="/projects"
+                            routes={[
+                                { name: "All Projects", path: "/projects" },
+                                { name: "Archived Projects", path: "/projects/archived" },
+                                { name: "Project Members", path: "/projects/members" },
+                                { name: "Project Tasks", path: "/projects/tasks" },
+                                { name: "Project Calendar", path: "/projects/calendar" },
+                                { name: "Project Files", path: "/projects/files" },
+                            ]}
+                        />
+
+                        <SidebarDropdown
+                            title="Team"
+                            icon={GroupsIcon}
+                            basePath="/team"
+                            routes={[
+                                { name: "Team Members", path: "/team" },
+                                { name: "Member Invitations", path: "/team/invitations" },
+                                { name: "Manage Members", path: "/team/manage-members"}
+                            ]}
+                        />
+
+                        <SidebarDropdown
+                            title="Settings"
+                            icon={SettingsIcon}
+                            basePath="/settings"
+                            routes={[
+                                { name: "General", path: "/settings" },
+                                { name: "Roles & Permissions", path: "/settings/roles" },
+                                { name: "Tasks", path: "/settings/tasks" },
+                                { name: "Security", path: "/settings/security" }
+                            ]}
+                        />
+                        
+                        {/* <MyTasksSidebar />
+                        <ProjectSidebar /> */}
                     </div>
                 </>
             ) : (

@@ -29,10 +29,17 @@ export const AuthProvider = ({ children }) => {
 
     useEffect(() => {
         const restoreSession = async () => {
+            const token = localStorage.getItem("accessToken");
+            if (!token) {
+                setUser(null);
+                setLoading(false);
+                return;
+            }
             try {
                 const { data } = await api.post("/api/auth/verify");
                 setUser(data.user);
             } catch {
+                localStorage.removeItem("accessToken");
                 setUser(null);
             } finally {
                 setLoading(false);
@@ -44,6 +51,7 @@ export const AuthProvider = ({ children }) => {
     const login = async (credentials) => {
         try {
             const { data } = await api.post('/api/auth/login', credentials);
+            localStorage.setItem("accessToken", data.accessToken);
             setUser(data.user);
             return data;
         } catch (err) {
@@ -55,8 +63,7 @@ export const AuthProvider = ({ children }) => {
     const signup = async (credentials) => {
         try {
             const { data } = await api.post('/api/auth/signup', credentials);
-            localStorage.setItem("accessToken", data.accessToken);
-            setUser(data.user);
+            toast.success(data.message);
             return data;
         } catch (err) {
             toast.error(err?.response?.data?.message || "Signup failed");
@@ -91,6 +98,7 @@ export const AuthProvider = ({ children }) => {
             await api.post('/api/auth/logout');
         } catch {}    
         localStorage.removeItem("accessToken");
+        delete api.defaults.headers.common.Authorization;
         setUser(null); 
     }
 

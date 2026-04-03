@@ -12,9 +12,10 @@ const userSchema = new mongoose.Schema({
     lastLoggedIn : { type : Date, default : null },
     ownedWorkspaces: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Workspace' }],
     ProjectMember: [{ type: mongoose.Schema.Types.ObjectId, ref: 'ProjectMember' }],
-    verificationExpire: { type: Date, default: null },
+    loginAttempts: { type: Number, default: 0 },
+    lockUntil: { type: Date, default: null },
+    systemRole: { type: String, enum: ['USER', 'ADMIN'], default: 'USER' },
 }, { timestamps: true });
 
-userSchema.index({ verificationExpire: 1 }, { expireAfterSeconds: 0 });
 const UserModel = mongoose.model("User", userSchema);
 export default UserModel;

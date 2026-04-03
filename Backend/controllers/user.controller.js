@@ -1,4 +1,5 @@
 import { createUser, verifyUser, generateTokens, matchPassword, findUserByEmail } from '../services/user.service.js';
+import { verifyInviteToken } from '../services/workspace.service.js';
 import UserModel from '../models/user.model.js';
 import UserTokenModel from '../models/userToken.model.js';
 import crypto from "crypto";
@@ -15,6 +16,7 @@ dotenv.config();
 export const signup = async (req, res) => {
     try {
         const { fname, lname, email, password, image } = req.body;
+        const { inviteToken } = req.query;
 
         if (!fname || !lname || !email || !password) {
             return res.status(400).json({ message: "Missing required fields" });
@@ -42,21 +44,30 @@ export const signup = async (req, res) => {
 
 export const verifyEmailLink = async (req, res) => {
     try {
-        const { verificationToken } = req.body;
+        const { verificationToken, inviteToken } = req.body;
 
         if (!verificationToken) {
             return res.status(400).json({ message: "Missing required fields" });
         }
 
-        await verifyUser(verificationToken);
+        const user = await verifyUser(verificationToken);
 
-        await sendEmail({
-            sendTo: user.email,
-            subject: "Welcome to Project Management",
-            html: welcomeEmailTemplate(user.name),
-        })
+        if (inviteToken) {
+            try {
+                await verifyInviteToken(user._id, inviteToken);
+            } catch (err) {
+                console.warn("Invite verification failed:", err.message);
+            }
+        }
+
+        // await sendEmail({
+        //     sendTo: user.email,
+        //     subject: "Welcome to Project Management",
+        //     html: welcomeEmailTemplate(user.name),
+        // })
         return res.status(200).json({ message: "User verified successfully" });
     } catch (error) {
+        console.error(error);
         return res.status(500).json({ message: error.message });
     }
 }
@@ -77,6 +88,8 @@ export const login = async (req, res) => {
         
         const isMatch = await matchPassword({ user, password });
         if (!isMatch) return res.status(400).json({ message: "Invalid credentials" });
+        
+        await UserModel.findByIdAndUpdate(user._id, { lastLoggedIn: new Date() });
 
         const { accessToken, refreshToken } = await generateTokens(user);
 
@@ -87,9 +100,9 @@ export const login = async (req, res) => {
             path: "/",
             maxAge: 1000 * 60 * 60 * 24 * 30,}
         );
-
         return res.json({ success: true, message: "Login successful", accessToken, user });
     } catch (error) {
+        console.error(error)
        return res.status(500).json({ message: error.message });
     }
 }
@@ -141,6 +154,8 @@ export const refreshAccessToken = async (req, res) => {
 
         if (!user) return res.status(401).json({ message: 'User not found' });
 
+        await UserModel.findByIdAndUpdate(user._id, { lastLoggedIn: new Date() });
+
         const tokens = await generateTokens(user);
 
         res.cookie("refreshToken", tokens.refreshToken, {
@@ -166,8 +181,8 @@ export const logoutController = async (req, res) => {
 
     res.clearCookie("refreshToken", {
         httpOnly: true,
-        secure: true,
-        sameSite: "none",
+        secure: process.env.NODE_ENV === "production",
+        sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
     });
     return res.status(200).json({ message: "Logout successful" });
 }
@@ -175,6 +190,7 @@ export const logoutController = async (req, res) => {
 export const googleAuthController = async (req, res) => {
     try {
         const { token } = req.body;
+        const { inviteToken } = req.query;
         
         if (!token) {
         return res.status(401).json({ message: "No token provided" });
@@ -194,7 +210,16 @@ export const googleAuthController = async (req, res) => {
                 provider: "google",
                 verifiedByGoogle: true,
                 isEmailVerified: true,
+                lastLoggedIn: new Date(),
             });
+
+            if (inviteToken) {
+                try {
+                    await verifyInviteToken(user._id, inviteToken);
+                } catch (err) {
+                    console.warn("Invite verification failed:", err.message);
+                }
+            }
 
             await sendEmail({
                 sendTo: user.email,
@@ -214,6 +239,9 @@ export const googleAuthController = async (req, res) => {
 
         if (!user.hashedPassword || user.hashedPassword === "" || user.hashedPassword === null) {
             const setPassword = true;
+
+            await UserModel.findByIdAndUpdate(user._id, { lastLoggedIn: new Date() });
+
             const { accessToken, refreshToken } = await generateTokens(user);
             res.cookie("refreshToken", refreshToken, {
                 httpOnly: true,
@@ -236,6 +264,9 @@ export const googleAuthController = async (req, res) => {
             subject: "Welcome to Project Management",
             html: welcomeEmailTemplate(user.name),
         })
+
+        await UserModel.findByIdAndUpdate(user._id, { lastLoggedIn: new Date() });
+        
         const { accessToken, refreshToken} = await generateTokens(user);
         res.cookie("refreshToken", refreshToken, {
             httpOnly: true,

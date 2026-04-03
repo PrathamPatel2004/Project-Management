@@ -38,8 +38,10 @@ export const verifyUser = async (verificationToken) => {
 
     if (!userToken) throw new Error("Invalid token");
 
-    await UserModel.findByIdAndUpdate(userToken.userId, { isEmailVerified: true });
+    const user = await UserModel.findByIdAndUpdate(userToken.userId, { isEmailVerified: true }, { new: true });
     await userToken.deleteOne();
+
+    return user;
 }
 
 export const generateTokens = async (user) => {
@@ -52,7 +54,7 @@ export const generateTokens = async (user) => {
         userId: user._id,
         token: hashedRefreshToken,
         type: "REFRESH",
-        expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+        expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
     });
     return { accessToken, refreshToken };
 }

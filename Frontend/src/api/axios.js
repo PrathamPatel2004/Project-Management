@@ -56,6 +56,7 @@ api.interceptors.response.use(
             } catch (err) {
                 processQueue(err, null);
                 localStorage.removeItem("accessToken");
+                window.location.href = "auth/login";
                 toast.error("Session expired. Please log in again.");
                 return Promise.reject(err);
             } finally {

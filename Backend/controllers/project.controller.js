@@ -15,7 +15,7 @@ export const fetchProjects = async (req, res) => {
 export const createProject = async (req, res) => {
     try {
         const userId = req.user.id;
-        const { name, description, priority, status, start_date, end_date, team_lead, workspaceId } = req.body;
+        const { name, description, priority, status, end_date, team_lead, workspaceId } = req.body;
 
         const membership = await WorkspaceMemberModel.findOne({ user: userId, workspace: workspaceId });
 
@@ -37,14 +37,23 @@ export const createProject = async (req, res) => {
             return res.status(400).json({ message: "Team lead must be a workspace member" });
         }
 
-        if (start_date && end_date) {
-            if (new Date(start_date) > new Date(end_date)) {
-                return res.status(400).json({ message: "Start date cannot be after end date" });
-            }
+        if (end_date && new Date(end_date) < new Date()) {
+            return res.status(400).json({ message: "End date cannot be in the past" });
         }
+        const ProjectKey = name.replace(/\s+/g, '-').toUpperCase().replace(/[^a-zA-Z0-9]/g, '');
     
-        const project = await ProjectModel.create({ name, description, priority, status, start_date, end_date, team_lead, workspace: workspaceId });
-
+        const project = await ProjectModel.create({ 
+            name, 
+            project_key: ProjectKey, 
+            description, 
+            priority,
+            status,
+            start_date: new Date(),
+            end_date,
+            team_lead,
+            created_by: userId,
+            workspace: workspaceId
+        });
         res.status(201).json({ message: "Project created successfully", project });
 
     } catch (error) {

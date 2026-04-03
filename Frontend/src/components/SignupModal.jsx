@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from 'react';
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import CloseIcon from "@mui/icons-material/Close";
 import { signInWithPopup, GoogleAuthProvider } from "firebase/auth";
@@ -14,11 +14,17 @@ const SignupModal = ({ isOpen, onClose }) => {
         password : "",
         confirmPassword : "",
     });
-    const { user, logout,signup, googleAuth } = useAuth();
+    const { user, logout, signup, googleAuth } = useAuth();
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [searchParams] = useSearchParams();
+    const inviteToken = searchParams.get("inviteToken");
     const navigate = useNavigate();
 
-    if (!isOpen) return null;
+    useEffect(() => {
+        if (inviteToken) {
+            localStorage.setItem("inviteToken", inviteToken);
+        }
+    }, [inviteToken]);
 
     const handleChange = (e) => {
         setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
@@ -39,9 +45,15 @@ const SignupModal = ({ isOpen, onClose }) => {
             return;
         }
         try {
-            await signup(formData);
+            const storedInviteToken = localStorage.getItem("inviteToken");
+
+            await signup({
+                ...formData,
+                inviteToken: storedInviteToken
+            });
+
             onClose();
-            navigate("/auth/verify", { state: { email: formData.email }});
+            navigate("/auth/verify", { state: { email: formData.email, inviteToken: storedInviteToken }});
         } catch (error) {
             toast.error(error?.message || "Signup failed");
         } finally {
@@ -57,7 +69,16 @@ const SignupModal = ({ isOpen, onClose }) => {
             const result = await signInWithPopup(auth, provider);
             const token = await result.user.getIdToken();
 
-            const data = await googleAuth({ token });
+            const storedInviteToken = localStorage.getItem("inviteToken");
+
+            const data = await googleAuth({
+                token,
+                inviteToken: storedInviteToken
+            });
+
+            if (inviteToken) {
+                localStorage.removeItem("inviteToken");
+            }
 
             if (data?.setPassword === true) {
                 onClose();
@@ -88,6 +109,8 @@ const SignupModal = ({ isOpen, onClose }) => {
         navigate("/");
     }
 
+    if (!isOpen) return null;
+    
     if (user) return (
         <div className="fixed inset-0 bg-black/20 dark:bg-black/60 backdrop-blur flex items-center justify-center z-50 overflow-y-auto p-4">
             <div className="bg-white dark:bg-neutral-950 border border-neutral-200 dark:border-neutral-800 rounded-xl p-6 w-full max-w-lg text-neutral-900 dark:text-neutral-200 relative">
@@ -145,7 +168,7 @@ const SignupModal = ({ isOpen, onClose }) => {
                         </div>
                     
                         <div className="w-full">
-                            <label className="block text-sm mb-1">First Name</label>
+                            <label className="block text-sm mb-1">Last Name</label>
                             <input name="lname" type="text" value={formData.lname} onChange={handleChange} placeholder="Enter Last Name" className="w-full px-3 py-2 rounded dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-700 mt-1 text-zinc-900 dark:text-zinc-200 text-sm" required />
                         </div>
                     </div>

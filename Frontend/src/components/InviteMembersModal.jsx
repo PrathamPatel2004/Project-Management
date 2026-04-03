@@ -1,107 +1,155 @@
 import { useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
+import { useAuth } from '../contexts/AuthContext.jsx';
+import { inviteMembers, addInvitation } from '../features/workspaceMemberSlice.js';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import EmailIcon from '@mui/icons-material/Email';
+import CloseIcon from '@mui/icons-material/Close';
+import { toast } from "react-hot-toast";
+import api from '../api/axios.js';
 
 function InviteMembersModal({ isModalOpen, setIsModalOpen }) {
     const currentWorkspace = useSelector((state) => state.workspace?.currentWorkspace || null);
-    const [formData, setFormData] = useState({
-        email: "",
-        role: "org:member",
-    });
-    const [loading, setLoading] = useState(false)
-    const dispatch = useDispatch()
+    const [invites, setInvites] = useState([{ email: "", role: "Member" }]);
+    const loading = useSelector((state) => state.workspaceMembers.loading.invite);
+    const dispatch = useDispatch();
+    const addRow = () => {
+        setInvites([...invites, { email: "", role: "Member" }]);
+    };
+
+    const removeRow = (index) => {
+        const updated = invites.filter((_, i) => i !== index);
+        setInvites(updated);
+    };
+    
+    const handleChange = (index, field, value) => {
+        const updated = [...invites];
+
+        if (field === "email") {
+            value = value.toLowerCase().trim();
+
+            const isDuplicate = updated.some(
+                (item, i) => i !== index && item.email === value && value !== ""
+            );
+
+            if (isDuplicate) {
+                toast.error("Duplicate email not allowed");
+                return;
+            }
+        }
+        updated[index][field] = value;
+        setInvites(updated);
+    };
 
     const handleSubmit = async (e) => {
-        e.preventDefault()
+        e.preventDefault();
 
-        if (!formData.email.trim()) {
-            toast.error("Email is required")
-            return
+        const validInvites = invites.filter(i => i.email.trim());
+
+        if (validInvites.length === 0) {
+            toast.error("At least one email is required");
+            return;
         }
 
-        if (!formData.role.trim()) {
-            toast.error("Role is required")
-            return
-        }
+        const emailSet = new Set();
+        const uniqueInvites = [];
 
+        for (const invite of validInvites) {
+            const email = invite.email.toLowerCase();
+
+            if (emailSet.has(email)) {
+                toast.error(`Duplicate email: ${email}`);
+                return;
+            }
+            emailSet.add(email);
+            uniqueInvites.push({
+                email,
+                role: invite.role
+            });
+        }
+    
         try {
-            setLoading(true)
+            await dispatch(inviteMembers({
+                workspaceId: currentWorkspace.id,
+                invites: uniqueInvites
+            })).unwrap();
+            toast.success("Invitations sent successfully");
 
-            const formData = new FormData()
-            formData.append("email", formData.email)
-            formData.append("role", formData.role)
-
-            const { data } = await api.post(
-                "/api/workspace/invite-member",
-                formData,
-                { headers: { "Content-Type": "multipart/form-data" } }
-            )
-
-            dispatch(addWorkspace(data))
-            toast.success("Member invited successfully")
-            onClose()
-
+            setInvites([{ email: "", role: "Member" }]);
+            setIsModalOpen(false);
         } catch (err) {
-            toast.error(err.response?.data?.message || "Failed to invite member")
-        } finally {
-            setLoading(false)
+            toast.error(err?.response?.data?.message || "Failed to invite members");
         }
-    }
+    };
 
-    if(!isModalOpen) return null;
+    if (!isModalOpen) return null;
 
     return (
-        <div className='z-50 fixed inset-0 flex items-center justify-center bg-black/20 dark:bg-black/50 backdrop-blur'>
-            <div className='w-full max-w-md bg-white dark:bg-neutral-950 text-neutral-900 dark:text-neutral-200 border border-neutral-300 dark:border-neutral-800 rounded-xl p-6'>
-                <div className='mb-4'>
-                    <h2 className='text-xl font-bold flex items-center gap-2'>
-                        <PersonAddIcon /> Invite Members
-                    </h2>
-                    {currentWorkspace && (
-                        <p className="text-sm text-neutral-700 dark:text-neutral-400">
-                            Inviting to workspace: <span className="text-blue-600 dark:text-blue-400">{currentWorkspace.name}</span>
-                        </p>
-                    )}
-                </div>
+        <div className="fixed inset-0 bg-black/20 dark:bg-black/60 backdrop-blur flex items-center justify-center text-left z-50 scroll-no overflow-y-scroll p-4">
+            <div className="bg-white dark:bg-neutral-950 border border-neutral-200 dark:border-neutral-800 rounded-xl p-6 w-full max-w-lg text-neutral-900 dark:text-neutral-200 relative">
+                <button className="absolute top-3 right-3 text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200" onClick={() => setIsModalOpen(false)} >
+                    <CloseIcon className="size-5" />
+                </button>
+
+                <h2 className='text-xl font-bold flex items-center gap-2'><PersonAddIcon /> Invite Members</h2>
+                {currentWorkspace && (
+                    <p className="text-sm text-neutral-700 dark:text-neutral-400 mb-4">
+                        Workspace: <span className="text-blue-600 dark:text-blue-400">{currentWorkspace.name}</span>
+                    </p>
+                )}
 
                 <form onSubmit={handleSubmit} className='space-y-4'>
-                    <div className='space-y-2'>
-                        <label htmlFor='email' className='text-sm font-medium text-neutral-900 dark:text-neutral-200'>Email Address</label>
-                        <div className='relative'>
-                            <EmailIcon className='absolute left-3 top-1/2 -translate-y-1/2 text-neutral-500 dark:text-neutral-400 w-4 h-4' />
-                            <input 
-                                type="email" value={formData.email} 
-                                onChange={(e) => setFormData({ ...formData, email: e.target.value })} 
-                                placeholder="Enter email address" 
-                                className="pl-10 w-full rounded border border-neutral-300 dark:border-neutral-700 dark:bg-neutral-900 text-neutral-900 dark:text-neutral-200 text-sm placeholder-neutral-400 dark:placeholder-neutral-500 py-2 focus:outline-none focus:border-blue-500"
-                                required
-                            />
+                    {invites.map((invite, index) => (
+                        <div key={index} className="flex gap-2 items-center">
+                            <div className="relative flex-1">
+                                <EmailIcon className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-500 w-4 h-4" />
+                                <input
+                                    type="email"
+                                    value={invite.email}
+                                    onChange={(e) => handleChange(index, "email", e.target.value)}
+                                    placeholder="Enter email"
+                                    className="pl-10 w-full rounded border border-neutral-300 dark:border-neutral-700 dark:bg-neutral-900 py-2 px-2 text-sm focus:outline-none focus:border-blue-500"
+                                    required
+                                />
+                            </div>
+                            <select
+                                value={invite.role}
+                                onChange={(e) => handleChange(index, "role", e.target.value)}
+                                className="rounded border border-neutral-300 dark:border-neutral-700 dark:bg-neutral-900 py-2 px-2 text-sm"
+                            >
+                                <option value="Member">Member</option>
+                                <option value="Admin">Admin</option>
+                                <option value="Project Manager">Project Manager</option>
+                                <option value="Guest">Guest</option>
+                            </select>
+
+                            {invites.length > 1 && (
+                                <button
+                                    type="button"
+                                    onClick={() => removeRow(index)}
+                                    className="text-red-500 hover:text-red-700"
+                                >
+                                    <CloseIcon />
+                                </button>
+                            )}
                         </div>
-                    </div>
-                    <div className='space-y-2'>
-                        <label className='text-sm font-medium text-neutral-900 dark:text-neutral-200'>Role</label>
-                        <select
-                            value={formData.role}
-                            onChange={(e) => setFormData({ ...formData, role: e.target.value })}
-                            className="w-full rounded border border-neutral-300 dark:border-neutral-700 dark:bg-neutral-900 text-neutral-900 dark:text-neutral-200 py-2 px-3 focus:outline-none focus:border-blue-500 text-sm"
-                        >
-                            <option value="org:member">Member</option>
-                            <option value="org:admin">Admin</option>
-                        </select>
-                    </div>
-                    <div className='flex justify-end gap-3 pt-2'>
-                        <button type="button" onClick={() => setIsModalOpen(false)} className="px-4 py-2 rounded text-sm border border-neutral-300 dark:border-neutral-700 text-neutral-900 dark:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition" >
+                    ))}
+
+                    <button type="button" onClick={addRow} className="px-4 py-2 rounded text-blue-600 text-sm">
+                        + Add another member
+                    </button>
+                    <div className="flex justify-end gap-3 pt-2 text-sm">
+                        <button type="button" onClick={() => setIsModalOpen(false)} className="px-4 py-2 rounded border border-zinc-300 dark:border-zinc-700 hover:bg-zinc-200 dark:hover:bg-zinc-800" >
                             Cancel
                         </button>
-                        <button type="submit" disabled={loading || !currentWorkspace} className="px-4 py-2 text-sm bg-gradient-to-br from-blue-500 to-blue-600 text-white dark:text-neutral-200 rounded hover:opacity-90 transition disabled:opacity-50 disabled:cursor-not-allowed" >
-                            {loading ? "Sending..." : "Send Invitation"}
+                        <button type="submit" disabled={loading || !currentWorkspace} className="px-4 py-2 rounded bg-gradient-to-br from-blue-500 to-blue-600 text-white dark:text-zinc-200 disabled:opacity-50 disabled:cursor-not-allowed" >
+                            {loading ? "Sending..." : "Send Invites"}
                         </button>
                     </div>
                 </form>
             </div>
         </div>
-    )
+    );
 }
 
 export default InviteMembersModal;
