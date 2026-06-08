@@ -7,6 +7,7 @@ import { useDispatch, useSelector } from 'react-redux'
 
 import { fetchWorkspaces } from '../features/workspaceSlice'
 import { fetchProjects } from '../features/projectSlice'
+import { fetchWorkspaceActivity, fetchProjectActivity } from '../features/activitySlice'
 
 const Layout = () => {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false)
@@ -25,11 +26,11 @@ const Layout = () => {
     }, [loading, user, dispatch])
 
     useEffect(() => {
-        if (currentWorkspace?.id || currentWorkspace?._id) {
-            const workspaceId = currentWorkspace.id || currentWorkspace._id
-            dispatch(fetchProjects(workspaceId))
-        }
-    }, [currentWorkspace, dispatch])
+        const workspaceId = currentWorkspace?.id
+        if (!workspaceId) return
+        dispatch(fetchProjects(workspaceId))
+        dispatch(fetchWorkspaceActivity(workspaceId))
+    }, [currentWorkspace?.id, dispatch])
 
     if (loading) {
         return (
@@ -61,7 +62,7 @@ const Layout = () => {
                 )}
 
                 <main className="flex-1 overflow-y-auto">
-                    <div className="w-full px-4 sm:px-6 lg:px-8 py-6">
+                    <div className="w-full px-3 sm:px-6 lg:px-8 py-4 sm:py-6">
                         <Outlet />
                     </div>
                 </main>

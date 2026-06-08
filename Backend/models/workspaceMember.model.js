@@ -5,6 +5,7 @@ const workspaceMemberSchema = new mongoose.Schema({
     workspace: { type: mongoose.Schema.Types.ObjectId, ref: 'Workspace', required: true },
     role: { type: String, enum: ['Owner', 'Admin', 'Project Manager', 'Member', 'Guest'], default: 'Member' },
     status: { type: String, enum: ['Active','Pending','Suspended'], default: 'Active' },
+    invitedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
     joinedAt: { type: Date, default: Date.now },
 }, { timestamps: true });
 

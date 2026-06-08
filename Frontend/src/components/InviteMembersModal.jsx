@@ -69,6 +69,7 @@ function InviteMembersModal({ isModalOpen, setIsModalOpen }) {
         }
     
         try {
+            if (!currentWorkspace?.id) return toast.error("No workspace selected")
             await dispatch(inviteMembers({
                 workspaceId: currentWorkspace.id,
                 invites: uniqueInvites
@@ -78,7 +79,7 @@ function InviteMembersModal({ isModalOpen, setIsModalOpen }) {
             setInvites([{ email: "", role: "Member" }]);
             setIsModalOpen(false);
         } catch (err) {
-            toast.error(err?.response?.data?.message || "Failed to invite members");
+            toast.error(err?.message ||err?.response?.data?.message || "Failed to invite members");
         }
     };
 
@@ -138,11 +139,11 @@ function InviteMembersModal({ isModalOpen, setIsModalOpen }) {
                     <button type="button" onClick={addRow} className="px-4 py-2 rounded text-blue-600 text-sm">
                         + Add another member
                     </button>
-                    <div className="flex justify-end gap-3 pt-2 text-sm">
-                        <button type="button" onClick={() => setIsModalOpen(false)} className="px-4 py-2 rounded border border-zinc-300 dark:border-zinc-700 hover:bg-zinc-200 dark:hover:bg-zinc-800" >
+                    <div className="flex justify-end gap-3 text-sm">
+                        <button type="button" onClick={() => setIsModalOpen(false)} className="px-4 py-2 rounded border border-neutral-300 dark:border-neutral-700 hover:bg-neutral-200 dark:hover:bg-neutral-800" >
                             Cancel
                         </button>
-                        <button type="submit" disabled={loading || !currentWorkspace} className="px-4 py-2 rounded bg-gradient-to-br from-blue-500 to-blue-600 text-white dark:text-zinc-200 disabled:opacity-50 disabled:cursor-not-allowed" >
+                        <button type="submit" disabled={loading || !currentWorkspace} className="px-4 py-2 rounded bg-gradient-to-br from-blue-500 to-blue-600 text-white dark:text-neutral-200 disabled:opacity-50 disabled:cursor-not-allowed" >
                             {loading ? "Sending..." : "Send Invites"}
                         </button>
                     </div>

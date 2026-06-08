@@ -3,6 +3,7 @@ import WorkspaceModel from "../models/workspace.model.js";
 import UserModel from "../models/user.model.js";
 import WorkspaceMemberModel from "../models/workspaceMember.model.js";
 import WorkspaceInvitationModel from "../models/workspaceInvitation.model.js";
+import ActivityModel from "../models/activity.model.js";
 import { generateInviteToken, verifyInviteToken } from "../services/workspace.service.js"
 
 export const fetchWorkspaces = async (req, res) => {
@@ -14,7 +15,7 @@ export const fetchWorkspaces = async (req, res) => {
         const workspaceIds = memberships.map(m => m.workspace);
  
         // STEP 2: Fetch minimal workspace info
-        const workspaces = await WorkspaceModel.find({ _id: { $in: workspaceIds } }).select("name slug image_url description owner").lean();
+        const workspaces = await WorkspaceModel.find({ _id: { $in: workspaceIds } }).select("name slug logo description owner").lean();
 
         // STEP 3: Attach role info
         const workspaceMap = {};
@@ -37,17 +38,17 @@ export const fetchWorkspaces = async (req, res) => {
 export const createWorkspace = async (req, res) => {
     try {
         const userId = req.user.id;
-        const { name, slug, image_url, description } = req.body;
+        const { name, slug, logo, description } = req.body;
         const existing = await WorkspaceModel.findOne({ slug });
         
         if (existing) {
             return res.status(400).json({ message: "Workspace slug already exists" });
         }
 
-        const workspace = await WorkspaceModel.create({ name, slug, image_url, description, owner: userId });
+        const workspace = await WorkspaceModel.create({ name, slug, logo, description, owner: userId });
 
         await WorkspaceMemberModel.create({ user: userId, workspace: workspace._id, role: "Owner" });
-
+        await ActivityModel.create({ workspaceId: workspace._id, userId, action: "Created the workspace", entityType: "Workspace", entityId: workspace._id, ip: req.ip, metadata: { name } });
         res.status(201).json({ message: "Workspace created successfully", workspace });
 
     } catch (error) {
@@ -72,9 +73,8 @@ export const inviteWorkspaceMembers = async (req, res) => {
             let invite = await WorkspaceInvitationModel.create({ workspace: workspaceId, email, role, invitedBy: userId, token: hashedToken, expiresAt: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000) });
             invite = await invite.populate("invitedBy", "name email profileImage lastLoggedIn");
 
-            const inviteLink = `${process.env.FRONTEND_URL}/workspace/invite?token=${rawToken}`;
-
             if (existingUser) {
+                const inviteLink = `${process.env.FRONTEND_URL}/workspace/invite?token=${rawToken}`;
                 await sendEmail({
                     sendTo: email,
                     subject: "Workspace Invitation",

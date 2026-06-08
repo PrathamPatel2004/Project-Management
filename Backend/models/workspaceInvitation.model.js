@@ -13,7 +13,6 @@ const workspaceInvitationSchema = new mongoose.Schema({
 
 workspaceInvitationSchema.index({ email: 1 });
 workspaceInvitationSchema.index({ workspace: 1 });
-workspaceInvitationSchema.index({ email: 1, workspace: 1 }, { unique: true });
 workspaceInvitationSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 }); // TTL index to automatically delete expired invitations
 
 const WorkspaceInvitationModel = mongoose.model('WorkspaceInvitation', workspaceInvitationSchema);

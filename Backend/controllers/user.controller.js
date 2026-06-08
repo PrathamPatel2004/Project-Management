@@ -22,6 +22,7 @@ export const signup = async (req, res) => {
             return res.status(400).json({ message: "Missing required fields" });
         }
         const existingUser = await findUserByEmail(email);
+        
         if (existingUser) {
             return res.status(400).json({ message: "User already exists" });
         }
@@ -51,7 +52,6 @@ export const verifyEmailLink = async (req, res) => {
         }
 
         const user = await verifyUser(verificationToken);
-
         if (inviteToken) {
             try {
                 await verifyInviteToken(user._id, inviteToken);
@@ -60,11 +60,6 @@ export const verifyEmailLink = async (req, res) => {
             }
         }
 
-        // await sendEmail({
-        //     sendTo: user.email,
-        //     subject: "Welcome to Project Management",
-        //     html: welcomeEmailTemplate(user.name),
-        // })
         return res.status(200).json({ message: "User verified successfully" });
     } catch (error) {
         console.error(error);
@@ -113,8 +108,8 @@ export const verifyAccessToken = async (req, res) => {
 
         const authHeader = req.headers.authorization;
         const token = authHeader?.startsWith("Bearer ")
-        ? authHeader.split(" ")[1]
-        : null;
+            ? authHeader.split(" ")[1]
+            : null;
 
         if (!token) return res.status(401).json({ message: "No token" });
 
@@ -151,7 +146,6 @@ export const refreshAccessToken = async (req, res) => {
         await validateToken.deleteOne();
 
         const user = await UserModel.findById(decoded.id);
-
         if (!user) return res.status(401).json({ message: 'User not found' });
 
         await UserModel.findByIdAndUpdate(user._id, { lastLoggedIn: new Date() });
@@ -160,7 +154,7 @@ export const refreshAccessToken = async (req, res) => {
 
         res.cookie("refreshToken", tokens.refreshToken, {
             httpOnly: true,
-            secure: process.env.NODE_ENV === "production", // true only on HTTPS
+            secure: process.env.NODE_ENV === "production",
             sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
             path: "/",
             maxAge: 1000 * 60 * 60 * 24 * 30,}
@@ -193,21 +187,20 @@ export const googleAuthController = async (req, res) => {
         const { inviteToken } = req.query;
         
         if (!token) {
-        return res.status(401).json({ message: "No token provided" });
+            return res.status(401).json({ message: "No token provided" });
         }
-        const decoded = await admin.auth().verifyIdToken(token);
 
+        const decoded = await admin.auth().verifyIdToken(token);
         const { email, name, uid, picture } = decoded;
 
         let user = await UserModel.findOne({ email });
-
         if (!user) {
             user = await UserModel.create({
                 name,
                 email,
                 googleUid: uid,
                 profileImage: picture,
-                provider: "google",
+                provider: "Google",
                 verifiedByGoogle: true,
                 isEmailVerified: true,
                 lastLoggedIn: new Date(),
@@ -226,10 +219,11 @@ export const googleAuthController = async (req, res) => {
                 subject: "Welcome to Project Management",
                 html: welcomeEmailTemplate(user.name),
             })
+
             const { accessToken, refreshToken } = await generateTokens(user);
             res.cookie("refreshToken", refreshToken, {
                 httpOnly: true,
-                secure: process.env.NODE_ENV === "production", // true only on HTTPS
+                secure: process.env.NODE_ENV === "production",
                 sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
                 path: "/",
                 maxAge: 1000 * 60 * 60 * 24 * 30,}
@@ -241,7 +235,6 @@ export const googleAuthController = async (req, res) => {
             const setPassword = true;
 
             await UserModel.findByIdAndUpdate(user._id, { lastLoggedIn: new Date() });
-
             const { accessToken, refreshToken } = await generateTokens(user);
             res.cookie("refreshToken", refreshToken, {
                 httpOnly: true,
@@ -251,19 +244,8 @@ export const googleAuthController = async (req, res) => {
                 maxAge: 1000 * 60 * 60 * 24 * 30,}
             );
 
-            await sendEmail({
-                sendTo: user.email,
-                subject: "Welcome to Project Management",
-                html: welcomeEmailTemplate(user.name),
-            })
             return res.json({ success: true, message: "Login successful", user, accessToken, setPassword });
         }
-
-        await sendEmail({
-            sendTo: user.email,
-            subject: "Welcome to Project Management",
-            html: welcomeEmailTemplate(user.name),
-        })
 
         await UserModel.findByIdAndUpdate(user._id, { lastLoggedIn: new Date() });
         
@@ -275,6 +257,7 @@ export const googleAuthController = async (req, res) => {
             path: "/",
             maxAge: 1000 * 60 * 60 * 24 * 30,}
         );
+        
         return res.json({ success: true, message: "Login successful", user, accessToken });
     } catch (err) {
         console.error("Firebase verify failed:", err?.message || err);

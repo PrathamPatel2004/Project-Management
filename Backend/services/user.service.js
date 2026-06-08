@@ -18,7 +18,7 @@ export const createUser = async ({ name, email, password, image }) => {
         email,
         hashedPassword,
         image,
-        provider: password ? 'local' : 'google',
+        provider: password ? 'Local' : 'Google',
         verifiedByGoogle: !password,
         isEmailVerified: !password
     });
@@ -35,7 +35,6 @@ export const verifyUser = async (verificationToken) => {
     const hashedToken = crypto.createHash('sha256').update(verificationToken).digest('hex');
 
     const userToken = await UserTokenModel.findOne({ token: hashedToken, type: 'VERIFY' });
-
     if (!userToken) throw new Error("Invalid token");
 
     const user = await UserModel.findByIdAndUpdate(userToken.userId, { isEmailVerified: true }, { new: true });

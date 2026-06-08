@@ -3,13 +3,16 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import './App.css'
 import { Toaster } from 'react-hot-toast';
 import { AuthProvider, useAuth } from './contexts/AuthContext'
+import RequireProjectId from './components/RequireProjectId';
 import Home from './pages/Home';
 import Layout from './pages/Layout';
 import Projects from './pages/Projects';
 import Dashboard from './pages/Dashboard';
+import WorkspaceActivities from './pages/WorkspaceActivities';
 import Team from './pages/Team';
 import Settings from './pages/Settings';
 import ProjectDetails from './pages/ProjectDetails';
+import ProjectDetailsLayout from './pages/ProjectDetailsLayout';
 import TeamInvitations from './pages/TeamInvitations';
 import WorkspaceInviteAccept from './components/WorkspaceInviteAccept';
 
@@ -51,12 +54,22 @@ function AppProvider() {
                     {user && (
                         <>
                             <Route path="dashboard" element={<Dashboard />} />
+                            <Route path='dashboard/activity' element={<WorkspaceActivities />} />
                             <Route path='projects' element={<Projects />} />
                             <Route path='team' element={<Team />} />
                             <Route path='team/invitations' element={<TeamInvitations />} />
                             <Route path='settings' element={<Settings />} />
                             <Route path='profile' element={<Dashboard />} />
-                            <Route path='projectsDetail' element={<ProjectDetails />} />
+                            <Route path='project/details' element={<RequireProjectId />} />
+                            <Route path="project/details/:id" element={<ProjectDetailsLayout />}>
+                                <Route index element={<Navigate to="overview" replace />} />
+                                <Route path="overview" element={<ProjectDetails />} />
+                                <Route path="members" element={<ProjectDetails />} />
+                                <Route path="tasks" element={<ProjectDetails />} />
+                                <Route path="calendar" element={<ProjectDetails />} />
+                                <Route path="files" element={<ProjectDetails />} />
+                                <Route path="settings" element={<ProjectDetails />} />
+                            </Route>
                             <Route path="/workspace/invite" element={<WorkspaceInviteAccept />} />
                         </>
                     )}

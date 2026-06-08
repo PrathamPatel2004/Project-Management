@@ -33,13 +33,10 @@ const workspaceSlice = createSlice({
         },
 
         addWorkspace: (state, action) => {
-            const workspace = {
-                ...action.payload,
-                id: String(action.payload._id),
-            };
-
+            const workspace = { ...action.payload, id: String(action.payload._id) };
             state.workspaces.push(workspace);
             state.currentWorkspace = workspace;
+
             localStorage.setItem("currentWorkspaceId", workspace.id);
         },
 

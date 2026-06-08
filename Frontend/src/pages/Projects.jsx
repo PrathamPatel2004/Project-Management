@@ -13,8 +13,8 @@ function Projects() {
     const [isModalOpen, setIsModalOpen] = useState(false);
 
     const [filters, setFilters] = useState({
-        status: "ALL",
-        priority: "ALL",
+        status: "All",
+        priority: "All",
     });
 
     const filteredProjects = useMemo(() => {
@@ -29,13 +29,13 @@ function Projects() {
             );
         }
 
-        if (filters.status !== "ALL") {
+        if (filters.status !== "All") {
             filtered = filtered.filter(
                 (project) => project.status === filters.status
             );
         }
 
-        if (filters.priority !== "ALL") {
+        if (filters.priority !== "All") {
             filtered = filtered.filter(
                 (project) => project.priority === filters.priority
             );
@@ -98,7 +98,7 @@ function Projects() {
                 </select>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 {filteredProjects.length === 0 ? (
                     <div className="col-span-full text-center py-16">
                         <div className="w-24 h-24 mx-auto mb-6 bg-gray-200 dark:bg-neutral-800 rounded-full flex items-center justify-center">

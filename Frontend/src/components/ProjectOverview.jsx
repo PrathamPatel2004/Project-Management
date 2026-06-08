@@ -14,17 +14,18 @@ function ProjectOverview() {
     const { projects = [] } = useSelector((state) => state.projects || {});
 
     const statusColors = {
-        PLANNING: "bg-neutral-200 text-neutral-800 dark:bg-neutral-600 dark:text-neutral-200",
-        ACTIVE: "bg-emerald-200 text-emerald-800 dark:bg-emerald-500 dark:text-emerald-900",
-        ON_HOLD: "bg-amber-200 text-amber-800 dark:bg-amber-500 dark:text-amber-900",
-        COMPLETED: "bg-blue-200 text-blue-800 dark:bg-blue-500 dark:text-blue-900",
-        CANCELLED: "bg-red-200 text-red-800 dark:bg-red-500 dark:text-red-900"
+        "Active": "bg-emerald-200 text-emerald-800 dark:bg-emerald-500 dark:text-emerald-900",
+        "On Hold": "bg-amber-200 text-amber-800 dark:bg-amber-500 dark:text-amber-900",
+        "Completed": "bg-blue-200 text-blue-800 dark:bg-blue-500 dark:text-blue-900",
+        "Cancelled": "bg-red-200 text-red-800 dark:bg-red-500 dark:text-red-900",
+        "Archived": "bg-gray-200 text-gray-800 dark:bg-gray-500 dark:text-gray-900",
     };
 
     const priorityColors = {
-        LOW: "border-neutral-300 text-neutral-600 dark:border-neutral-600 dark:text-neutral-400",
-        MEDIUM: "border-amber-300 text-amber-700 dark:border-amber-500 dark:text-amber-400",
-        HIGH: "border-green-300 text-green-700 dark:border-green-500 dark:text-green-400",
+        "Low": "border-neutral-300 text-neutral-600 dark:border-neutral-600 dark:text-neutral-400",
+        "Medium": "border-amber-300 text-amber-700 dark:border-amber-500 dark:text-amber-400",
+        "High": "border-green-300 text-green-700 dark:border-green-500 dark:text-green-400",
+        "Critical": "border-red-300 text-red-700 dark:border-red-500 dark:text-red-400",
     };
 
     const getProgressColor = (progress) => {
@@ -34,9 +35,9 @@ function ProjectOverview() {
         if (progress > 0) return "bg-red-500";
     }
     return (
-        <div className='bg-white dark:bg-neutral-950 border border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700 transition-all duration-200 rounded-lg overflow-hidden'>
+        <div className='bg-white dark:bg-neutral-950 border border-neutral-200 dark:border-neutral-800 rounded-lg overflow-hidden'>
             <div className='flex justify-between items-center border-b border-neutral-200 dark:border-neutral-800 p-4'>
-                <h2 className='text-md text-neutral-800 dark:text-neutral-300'>Project Overview</h2>
+                <h2 className='text-md text-neutral-800 dark:text-neutral-300'>Project Overview ({projects.length})</h2>
                 <Link to={'/projects'} className='text-sm flex items-center text-neutral-600 hover:text-neutral-700 dark:text-neutral-400 dark:hover:text-neutral-300 gap-2'>
                     View All <ArrowForwardIcon className="text-gray-500 dark:text-neutral-400 mt-1" fontSize="small" />
                 </Link>
@@ -58,21 +59,23 @@ function ProjectOverview() {
                     <div className='divide-y divide-neutral-200 dark:divide-neutral-800'>
                         {projects.slice(0, 5).map((project) => (
                             <Link key={project.id} to={`/projectsDetail?id=${project.id}&tab=tasks`} className='block hover:bg-neutral-50 dark:hover:bg-neutral-900/50 transition-colors p-6'>
-                                <div className='flex items-start justify-between mb-3'>
+                                <div className='flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-3'>
                                     <div className='flex-1'>
-                                        <h3 className='text-semibold text-neutral-800 dark:text-neutral-300 mb-1'>{project.name}</h3>
+                                        <h3 className='font-semibold text-neutral-800 dark:text-neutral-300 mb-1 break-words'>{project.name}</h3>
                                         <p className='text-sm text-neutral-600 dark:text-neutral-400 line-clamp-2'>{project.description || 'No description'}</p>
                                     </div>
-                                    <div className="flex items-center gap-2 ml-4">
+                                    <div className="flex items-center gap-2 flex-wrap sm:ml-4">
+                                        <span className={`text-xs px-2 py-1 rounded ${priorityColors[project.priority]}`}>
+                                            {project.priority}
+                                        </span> 
                                         <span className={`text-xs px-2 py-1 rounded ${statusColors[project.status]}`}>
                                             {project.status.replace('_', ' ').replaceAll(/\b\w/g, c => c.toUpperCase())}
-                                        </span>
-                                        <div className={`w-2 h-2 rounded-full border-2 ${priorityColors[project.priority]}`} />
+                                        </span> 
                                     </div>
                                 </div>
                                 
-                                <div className="flex items-center justify-between text-xs text-neutral-500 dark:text-neutral-500 mb-3">
-                                    <div className="flex items-center gap-4">
+                                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 text-xs text-neutral-500 dark:text-neutral-500 mb-3">
+                                    <div className="flex flex-wrap items-center gap-3">
                                         {project.members?.length > 0 && (
                                             <div className="flex items-center gap-1">
                                                 <AccountCircleIcon className="w-3 h-3" />

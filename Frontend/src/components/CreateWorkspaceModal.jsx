@@ -3,11 +3,11 @@ import CloseIcon from "@mui/icons-material/Close"
 import toast from "react-hot-toast"
 import api from "../api/axios"
 import { useDispatch } from "react-redux"
+import { fetchProjects } from "../features/projectSlice"
 import { addWorkspace } from "../features/workspaceSlice"
 import { useCloudinaryUpload } from "../hooks/useCloudinaryUpload"
 
 const CreateWorkspaceModal = ({ onClose }) => {
-
     const [name, setName] = useState("")
     const [slug, setSlug] = useState("")
     const [description, setDescription] = useState("")
@@ -63,14 +63,11 @@ const CreateWorkspaceModal = ({ onClose }) => {
         e.preventDefault()
 
         if (!name.trim()) return toast.error("Organization name is required")
-
         if (!slug.trim()) return toast.error("Slug is required")
-
         let uploaded = []
 
         try {
             setLoading(true)
-
             if (logoFile) {
                 uploaded = await uploadFiles([logoFile], `workspaces/${slug}`)
             }
@@ -78,10 +75,11 @@ const CreateWorkspaceModal = ({ onClose }) => {
                 name,
                 slug,
                 description,
-                image_url: uploaded[0]?.url || null,
+                logo: uploaded[0]?.url || null,
             })
 
-            dispatch(addWorkspace(data))
+            dispatch(addWorkspace(data.workspace))
+            dispatch(fetchProjects(data.workspace?._id))
             toast.success("Organization created successfully")
             onClose()
         } catch (err) {
@@ -113,7 +111,6 @@ const CreateWorkspaceModal = ({ onClose }) => {
                 <h2 className="text-lg font-semibold mb-4">Create Organization</h2>
 
                 <form onSubmit={handleSubmit} className="space-y-4">
- 
                     <div className="flex items-center gap-4">
                         <div
                             onClick={() => fileRef.current.click()}

@@ -30,57 +30,58 @@ function ProjectCard({ project }) {
 
     return (
         <Link
-            to={`/projectsDetail?id=${project._id}&tab=tasks`}
-            className="bg-white dark:bg-neutral-950 border border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700 rounded-lg transition-all duration-200 p-5 group hover:shadow-sm"
+            to={`/project/details/${project._id}`}
+            className="group block bg-white dark:bg-neutral-950 border border-neutral-200 dark:border-neutral-800 rounded-xl p-4 sm:p-5 hover:shadow-md hover:border-blue-300 dark:hover:border-blue-700 transition-all duration-200"
         >
-            {/* Title + Status */}
-            <div className="flex justify-between items-start gap-3 mb-2">
-                <h3 className="font-semibold text-sm text-neutral-900 dark:text-neutral-200 truncate group-hover:text-blue-500 dark:group-hover:text-blue-400 transition-colors">
-                    {project.name}
-                </h3>
+            <div className="flex items-start justify-between gap-3">
+                <div className="flex items-center gap-3 min-w-0 flex-1">
+                    <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-lg overflow-hidden flex-shrink-0">
+                        {project.projectIcon ? (
+                            <img
+                                src={project.projectIcon}
+                                alt={project.name}
+                                className="w-full h-full object-cover"
+                            />
+                        ) : (
+                            <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-500 to-indigo-600 text-white text-sm font-bold">
+                                {project.project_key}
+                            </div>
+                        )}
+                    </div>
 
-                <span
-                    className={`text-[10px] px-2 py-0.5 rounded-full font-semibold ${statusColors[project.status] || ""}`}
-                >
+                    <div className="min-w-0 flex-1">
+                        <h3 className="font-semibold text-sm sm:text-base text-neutral-900 dark:text-neutral-100 truncate group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">{project.name}</h3>
+                        <p className={`text-xs ${priorityColor[project.priority]}`}>{project.priority}</p>
+                    </div>
+                </div>
+
+                <span className={`shrink-0 text-[10px] sm:text-xs px-2 py-1 rounded-full font-medium ${statusColors[project.status] || ""}`}>
                     {project.status.replace("_", " ")}
                 </span>
             </div>
 
-            {/* Description */}
-            <p className="text-xs text-neutral-500 dark:text-neutral-400 line-clamp-2 mb-4">
-                {project.description || "No description"}
-            </p>
+            <p className="mt-3 text-xs sm:text-sm text-neutral-500 dark:text-neutral-400 line-clamp-2">{project.description || "No description available"}</p>
 
-            {/* Meta */}
-            <div className="flex justify-between items-center text-xs text-neutral-500 dark:text-neutral-500 mb-3">
-                <span>{project.tasks?.length || 0} tasks</span>
-
-                {project.priority && (
-                    <div className="flex items-center gap-1">
-                        <span
-                            className={`w-2 h-2 rounded-full ${priorityColor[project.priority]}`}
-                        />
-                        <span className="capitalize">{project.priority}</span>
-                    </div>
-                )}
-            </div>
-
-            {/* Progress */}
-            <div className="space-y-1.5">
-                <div className="flex items-center justify-between text-[11px]">
-                    <span className="text-neutral-500 dark:text-neutral-500">
-                        Progress
-                    </span>
-                    <span className="text-neutral-600 dark:text-neutral-400">
-                        {progress}%
-                    </span>
+            <div className="mt-4 grid grid-cols-2 gap-3">
+                <div className="rounded-lg bg-neutral-50 dark:bg-neutral-900 p-2">
+                    <p className="text-xs text-neutral-500">Tasks</p>
+                    <p className="font-semibold text-neutral-900 dark:text-neutral-100">{project.tasks?.length || 0}</p>
                 </div>
 
-                <div className="w-full bg-neutral-200 dark:bg-neutral-800 rounded h-1.5 overflow-hidden">
-                    <div
-                        className="h-1.5 bg-blue-500 rounded transition-all duration-500"
-                        style={{ width: `${progress}%` }}
-                    />
+                <div className="rounded-lg bg-neutral-50 dark:bg-neutral-900 p-2">
+                    <p className="text-xs text-neutral-500">Members</p>
+                    <p className="font-semibold text-neutral-900 dark:text-neutral-100">{project.projectMembers?.length || 0}</p>
+                </div>
+            </div>
+
+            <div className="mt-4">
+                <div className="flex justify-between items-center mb-1">
+                    <span className="text-xs text-neutral-500">Progress</span>
+                    <span className="text-xs font-medium text-neutral-700 dark:text-neutral-300">{progress}%</span>
+                </div>
+
+                <div className="h-2 bg-neutral-200 dark:bg-neutral-800 rounded-full overflow-hidden">
+                    <div className="h-full bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full transition-all duration-500" style={{ width: `${progress}%` }} />
                 </div>
             </div>
         </Link>
