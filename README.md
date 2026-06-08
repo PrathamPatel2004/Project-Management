@@ -67,7 +67,9 @@ This system enables teams to manage **projects, tasks, members, roles, and permi
   * React Hooks
   * Tailwind CSS
   * Material UI Icons
+  * React Hot Toast
   * Axios
+  * Firebase (client-side integration)
   * Day.js
 
 ## Backend
@@ -76,6 +78,10 @@ This system enables teams to manage **projects, tasks, members, roles, and permi
   * MongoDB
   * Mongoose
   * JWT Authentication
+  * Cloudinary
+  * Resend
+  * Firebase Admin SDK
+  * Nodemon
   * RBAC Middleware
 
 ## Dev Tools
@@ -83,6 +89,7 @@ This system enables teams to manage **projects, tasks, members, roles, and permi
   * Postman
   * Jest (for further testing)
   * ESLint
+  * ES Modules
   * Prettier
 
 ---
@@ -203,7 +210,7 @@ team-page
 <img width="1920" height="912" alt="screencapture-localhost-5173-team-2026-04-03-13_12_52" src="https://github.com/user-attachments/assets/fb4d8df8-17d9-4bcb-a111-552b7ef22e8e" />
 
 ---
-# 👨‍💻 Author
+# Author
 
 **Pratham Patel**
 
