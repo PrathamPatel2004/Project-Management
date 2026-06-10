@@ -31,7 +31,7 @@ export const workspaceContext = async (req, res, next) => {
         req.workspacePermissions = ROLE_PERMISSIONS[member.role] || [];
 
         next();
-    } catch (err) {
-        res.status(500).json({ message: err.message });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
     }
 };

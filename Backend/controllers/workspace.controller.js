@@ -5,6 +5,7 @@ import WorkspaceMemberModel from "../models/workspaceMember.model.js";
 import WorkspaceInvitationModel from "../models/workspaceInvitation.model.js";
 import ActivityModel from "../models/activity.model.js";
 import { generateInviteToken, verifyInviteToken } from "../services/workspace.service.js"
+import { createActivity } from "../services/activity.service.js";
 
 export const fetchWorkspaces = async (req, res) => {
     try {
@@ -48,7 +49,8 @@ export const createWorkspace = async (req, res) => {
         const workspace = await WorkspaceModel.create({ name, slug, logo, description, owner: userId });
 
         await WorkspaceMemberModel.create({ user: userId, workspace: workspace._id, role: "Owner" });
-        await ActivityModel.create({ workspaceId: workspace._id, userId, action: "Created the workspace", entityType: "Workspace", entityId: workspace._id, ip: req.ip, metadata: { name } });
+        await createActivity({ userId, workspaceId: workspace._id, action: "WORKSPACE_CREATED", entityType: "Workspace", entityId: workspace._id, ip: req.ip, metadata: { workspace: workspace.name } });
+
         res.status(201).json({ message: "Workspace created successfully", workspace });
 
     } catch (error) {
@@ -63,6 +65,7 @@ export const inviteWorkspaceMembers = async (req, res) => {
         const { workspaceId } = req.params;
         const { invites } = req.body;
 
+        const workspace = await WorkspaceModel.findById(workspaceId)
         const invitePromises = invites.map(async (inviteData) => {
             const { email, role } = inviteData;
 
@@ -77,7 +80,7 @@ export const inviteWorkspaceMembers = async (req, res) => {
                 const inviteLink = `${process.env.FRONTEND_URL}/workspace/invite?token=${rawToken}`;
                 await sendEmail({
                     sendTo: email,
-                    subject: "Workspace Invitation",
+                    subject: `Workspace Invitation for ${workspace.name} workspace`,
                     html: `<h3>You’ve been invited</h3>
                             <a href="${inviteLink}">Accept Invitation</a>`
                 });
@@ -85,7 +88,7 @@ export const inviteWorkspaceMembers = async (req, res) => {
                 const signupLink = `${process.env.FRONTEND_URL}/auth/signup?inviteToken=${rawToken}`;
                 await sendEmail({
                     sendTo: email,
-                    subject: "Join Workspace",
+                    subject: `Join ${workspace.name} Workspace`,
                     html: `<h3>Create account</h3>
                             <a href="${signupLink}">Signup & Join</a>`
                 });
@@ -94,10 +97,11 @@ export const inviteWorkspaceMembers = async (req, res) => {
         })
 
         const results = await Promise.all(invitePromises);
+        await createActivity({ userId, workspaceId, action: `MEMBERS_INVITED`, entityType: "Workspace", entityId: workspaceId, ip: req.ip, metadata: { emails: invites.map(invite => invite.email) } });
+
         res.json({ message: "Invitations processed", invites: results });
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ message: err.message });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
     }
 };
 
@@ -111,9 +115,8 @@ export const acceptWorkspaceInvite = async (req, res) => {
             message: "Joined workspace successfully",
             workspaceId: invite.workspace
         });
-    } catch (err) {
-        console.error(err)
-        res.status(500).json({ message: err.message });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
     }
 };
 

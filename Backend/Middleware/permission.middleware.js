@@ -37,8 +37,8 @@ export const requireWorkspacePermission = (permission) => {
             req.workspaceMember = membership;
 
             next();
-        } catch (err) {
-            console.error(err);
+        } catch (error) {
+            console.error(error);
             res.status(500).json({ message: "Authorization error" });
         }
     };

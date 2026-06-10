@@ -15,9 +15,9 @@ export const fetchWorkspaceActivity = createAsyncThunk(
 
 export const fetchProjectActivity = createAsyncThunk(
     "activity/fetchProjectActivity",
-    async ({ workspaceId, projectId }, { rejectWithValue }) => {
+    async ({ projectId }, { rejectWithValue }) => {
         try {
-            const { data } = await api.get(`/api/activity/${workspaceId}/${projectId}`);
+            const { data } = await api.get(`/api/activity/${projectId}`);
             return data.data;
         } catch (err) {
             return rejectWithValue(err.response?.data || err.message);

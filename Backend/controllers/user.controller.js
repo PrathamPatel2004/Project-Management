@@ -55,8 +55,8 @@ export const verifyEmailLink = async (req, res) => {
         if (inviteToken) {
             try {
                 await verifyInviteToken(user._id, inviteToken);
-            } catch (err) {
-                console.warn("Invite verification failed:", err.message);
+            } catch (error) {
+                console.warn("Invite verification failed:", error.message);
             }
         }
 
@@ -119,7 +119,7 @@ export const verifyAccessToken = async (req, res) => {
         if (!user) return res.status(401).json({ message: "User not found" });
 
         return res.json({ success: true, user });
-    } catch (err) {
+    } catch (error) {
         return res.status(401).json({ message: "Invalid token" });
     }
 };
@@ -160,7 +160,7 @@ export const refreshAccessToken = async (req, res) => {
             maxAge: 1000 * 60 * 60 * 24 * 30,}
         );
         return res.status(200).json({ message: 'Access token refreshed successfully', accessToken: tokens.accessToken });
-    } catch (err) {
+    } catch (error) {
         res.status(500).json({ message: "Session expired" });
     }
 }
@@ -209,8 +209,8 @@ export const googleAuthController = async (req, res) => {
             if (inviteToken) {
                 try {
                     await verifyInviteToken(user._id, inviteToken);
-                } catch (err) {
-                    console.warn("Invite verification failed:", err.message);
+                } catch (error) {
+                    console.warn("Invite verification failed:", error.message);
                 }
             }
 
@@ -259,9 +259,8 @@ export const googleAuthController = async (req, res) => {
         );
         
         return res.json({ success: true, message: "Login successful", user, accessToken });
-    } catch (err) {
-        console.error("Firebase verify failed:", err?.message || err);
-        return res.status(401).json({ message: "Invalid Google token" });
+    } catch (error) {
+        return res.status(401).json({ message: "Invalid Google token", error });
     }
 };
 
@@ -285,7 +284,7 @@ export const setPasswordController = async (req, res) => {
         await user.save();
 
         res.json({ success: true, message: "Password set successfully" });
-    } catch (err) {
-        res.status(500).json({ success: false, message: "Password update failed" });
+    } catch (error) {
+        res.status(500).json({ success: false, message: "Password update failed", error });
     }
 };

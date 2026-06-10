@@ -28,6 +28,13 @@ function ProjectOverview() {
         "Critical": "border-red-300 text-red-700 dark:border-red-500 dark:text-red-400",
     };
 
+    const flowColors = {
+        "Kanban": "border-green-300 text-green-600 dark:border-green-600 dark:text-green-400",
+        "Agile": "border-amber-300 text-amber-700 dark:border-amber-500 dark:text-amber-400",
+        "Waterfall": "border-blue-300 text-blue-700 dark:border-blue-500 dark:text-blue-400",
+        "Custom": "border-red-300 text-red-700 dark:border-red-500 dark:text-red-400",
+    }
+
     const getProgressColor = (progress) => {
         if (progress >= 75) return "bg-green-500";
         if (progress >= 50) return "bg-amber-500";
@@ -58,38 +65,50 @@ function ProjectOverview() {
                 ) : (
                     <div className='divide-y divide-neutral-200 dark:divide-neutral-800'>
                         {projects.slice(0, 5).map((project) => (
-                            <Link key={project.id} to={`/projectsDetail?id=${project.id}&tab=tasks`} className='block hover:bg-neutral-50 dark:hover:bg-neutral-900/50 transition-colors p-6'>
-                                <div className='flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-3'>
-                                    <div className='flex-1'>
-                                        <h3 className='font-semibold text-neutral-800 dark:text-neutral-300 mb-1 break-words'>{project.name}</h3>
-                                        <p className='text-sm text-neutral-600 dark:text-neutral-400 line-clamp-2'>{project.description || 'No description'}</p>
-                                    </div>
-                                    <div className="flex items-center gap-2 flex-wrap sm:ml-4">
-                                        <span className={`text-xs px-2 py-1 rounded ${priorityColors[project.priority]}`}>
-                                            {project.priority}
-                                        </span> 
-                                        <span className={`text-xs px-2 py-1 rounded ${statusColors[project.status]}`}>
-                                            {project.status.replace('_', ' ').replaceAll(/\b\w/g, c => c.toUpperCase())}
-                                        </span> 
-                                    </div>
-                                </div>
-                                
-                                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 text-xs text-neutral-500 dark:text-neutral-500 mb-3">
-                                    <div className="flex flex-wrap items-center gap-3">
-                                        {project.members?.length > 0 && (
-                                            <div className="flex items-center gap-1">
-                                                <AccountCircleIcon className="w-3 h-3" />
-                                                {project.members.length} members
-                                            </div>
-                                        )}
-                                        {project.end_date && (
-                                            <div className="flex items-center gap-1">
-                                                <CalendarTodayIcon className="w-3 h-3" />
-                                                {format(new Date(project.end_date), "MMM d, yyyy")}
+                            <Link key={project.id} to={`/projectsDetail?id=${project.id}&tab=tasks`} className='block hover:bg-neutral-50 dark:hover:bg-neutral-900/50 transition-colors p-4'>
+                                <div className="flex items-center gap-4 flex-1">
+                                    <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-lg overflow-hidden flex-shrink-0">
+                                        {project.projectIcon ? (
+                                            <img
+                                                src={project.projectIcon}
+                                                alt={project.name}
+                                                className="w-full h-full object-cover"
+                                            />
+                                        ) : (
+                                            <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-500 to-indigo-600 text-white text-sm font-bold">
+                                                {project.project_key}
                                             </div>
                                         )}
                                     </div>
+                                    <div className='w-full flex flex-col sm:flex-row sm:items-start sm:justify-between gap-1 mb-1'>
+                                        <div className='flex-1'>
+                                            <h4 className='font-semibold text-neutral-800 dark:text-neutral-300 mb-1 break-words'>{project.name}</h4>
+                                            <p className='text-sm text-neutral-600 dark:text-neutral-400 line-clamp-2 mb-1'>{project.description || 'No description'}</p>
+                                            <div className="flex items-center gap-1 text-xs text-neutral-500 dark:text-neutral-500">
+                                                {project.projectMembers?.length > 0 && (
+                                                    <div className="flex items-center gap-1">
+                                                        {project.projectMembers.length} Members
+                                                    </div>
+                                                )}{"|"}
+                                                <span>
+                                                    Flow Type:
+                                                    <span className={`text-xs px-2 py-1 rounded ${flowColors[project.flowType]}`}>
+                                                        {project.flowType}
+                                                    </span>
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <div className="flex items-center gap-2 flex-wrap">
+                                            <span className={`text-xs px-2 py-1 rounded border ${priorityColors[project.priority]}`}>
+                                                {project.priority}
+                                            </span>
+                                            <span className={`text-xs px-2 py-1 rounded ${statusColors[project.status]}`}>
+                                                {project.status.replace('_', ' ').replaceAll(/\b\w/g, c => c.toUpperCase())}
+                                            </span> 
+                                        </div>
+                                    </div>
                                 </div>
+
                                 <div className="space-y-2">
                                     <div className="flex items-center justify-between text-xs">
                                         <span className="text-neutral-500 dark:text-neutral-500">Progress</span>

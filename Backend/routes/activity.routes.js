@@ -5,6 +5,6 @@ import auth from '../middleware/auth.middleware.js';
 const activityRouter = Router();
 
 activityRouter.get('/:workspaceId',auth, getWorkspaceActivity)
-activityRouter.get('/:workspaceId/:projectId',auth, getProjectActivity)
+activityRouter.get('/:projectId',auth, getProjectActivity)
 
 export default activityRouter;

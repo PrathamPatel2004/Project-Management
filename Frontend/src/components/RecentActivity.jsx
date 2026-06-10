@@ -51,10 +51,7 @@ function RecentActivity() {
                                         <div className="flex-1 min-w-0">
                                             <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 mb-1">
                                                 <span className="text-neutral-800 dark:text-neutral-200 break-words">
-                                                    {activity.action}{" "}
-                                                    {activity.entityType !== "Workspace" && (
-                                                        <span className="font-semibold text-green-400 dark:text-green-600">"{activity.metadata?.projectName || activity.metadata?.taskName}"</span>
-                                                    )}
+                                                    {activity.message}
                                                 </span>
                                             </div>
                                             <div className="flex flex-col sm:flex-row sm:flex-wrap gap-2 text-xs text-neutral-500 dark:text-neutral-400 mt-2">

@@ -138,10 +138,7 @@ function WorkspaceActivities() {
                                     {new Date(activity.createdAt).toLocaleString()}
                                 </td>
                                 <td className="px-6 py-3 text-sm">
-                                    {activity.action}{" "}
-                                    {activity.entityType !== "Workspace" && (
-                                        <span className="font-semibold text-green-400 dark:text-green-600">"{activity.metadata?.projectName || activity.metadata?.taskName}"</span>
-                                    )}
+                                    {activity.message}
                                 </td>
                             </tr>
                         ))}
@@ -171,12 +168,7 @@ function WorkspaceActivities() {
                             {activity.userId?.name}
                         </div>
                         <div className="mt-2 text-sm text-gray-700 dark:text-gray-300">
-                            {activity.action}
-                            {activity.entityType !== "Workspace" && (
-                                <span className="font-semibold text-green-500 ml-1">
-                                    "{activity.metadata?.projectName || activity.metadata?.taskName}"
-                                </span>
-                            )}
+                            {activity.message}
                         </div>
 
                         <div className="mt-3">

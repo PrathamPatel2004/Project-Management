@@ -6,6 +6,7 @@ import ProjectMembersModel from "../models/projectMembers.model.js";
 import WorkspaceMemberModel from "../models/workspaceMember.model.js";
 import ActivityModel from "../models/activity.model.js";
 import { generateProjectKey } from "../services/project.service.js";
+import { createActivity } from "../services/activity.service.js";
 
 export const createProject = async (req, res) => {
     try {
@@ -118,16 +119,10 @@ export const createProject = async (req, res) => {
 
         await project.save();
 
-        await ActivityModel.create({
-            workspaceId,
-            projectId: project._id,
-            userId,
-            action: "Project Created",
-            entityType: "Project",
-            entityId: project._id,
-            ip: req.ip,
-            metadata: {projectName: project.name}
-        });
+        const activity = await createActivity({ userId, workspaceId, action: "PROJECT_CREATED", entityType: "Project", entityId: project._id, ip: req.ip, metadata: { projectName: project.name } });
+        activity.projectId = project._id;
+
+        activity.save();
 
         return res.status(201).json({ success: true, message: "Project created successfully", project });
     } catch (error) {
