@@ -54,10 +54,10 @@ function WorkspaceActivities() {
 
     return (
         <div className="space-y-6 max-w-6xl mx-auto">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
+            <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
                 <div>
-                    <h1 className="text-xl sm:text-2xl font-semibold">Workspace Activities</h1>
-                    <p className="text-sm text-gray-500 dark:text-neutral-400">{filteredActivities.length} activities found</p>
+                    <h1 className="text-xl sm:text-2xl font-semibold text-gray-900 dark:text-white mb-1">Workspace Activities</h1>
+                    <p className="text-gray-500 dark:text-neutral-400 text-sm">Workspace Activities in {currentWorkspace.name}</p>
                 </div>
 
                 <button
@@ -119,29 +119,43 @@ function WorkspaceActivities() {
                 <table className="min-w-full divide-y divide-gray-200 dark:divide-neutral-800">
                     <thead>
                         <tr className="bg-gray-50 dark:bg-neutral-900/50">
-                            <th className="px-6 py-2.5 text-left text-sm w-1/5">Project</th>
-                            <th className="px-6 py-2.5 text-left text-sm w-1/5">User</th>
-                            <th className="px-6 py-2.5 text-left text-sm w-1/5">Date</th>
-                            <th className="px-6 py-2.5 text-left text-sm w-2/5 min-w-[400px]">Action</th>
+                            <th className="px-6 py-2.5 text-left text-sm w-[15%]">Entity Type</th>
+                            <th className="px-6 py-2.5 text-left text-sm w-[20%]">Project</th>
+                            <th className="px-6 py-2.5 text-left text-sm w-[20%]">User</th>
+                            <th className="px-6 py-2.5 text-left text-sm w-[20%]">Date</th>
+                            <th className="px-6 py-2.5 text-left text-sm w-[25%] min-w-[300px]">Action</th>
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-200 dark:divide-neutral-800">
-                        {filteredActivities.map((activity) => (
-                            <tr key={activity._id} className="hover:bg-gray-50 dark:hover:bg-neutral-800/50">
-                                <td className="px-6 py-3 text-sm">
-                                    {activity.metadata?.projectName || "-"}
-                                </td>
-                                <td className="px-6 py-3 text-sm">
-                                    {activity.userId?.name} <span className={`px-2 py-1 text-xs rounded-md ${ROLE_COLORS[activity.userRole]}`}>{activity.userRole}</span>
-                                </td>
-                                <td className="px-6 py-3 text-sm">
-                                    {new Date(activity.createdAt).toLocaleString()}
-                                </td>
-                                <td className="px-6 py-3 text-sm">
-                                    {activity.message}
+                        {filteredActivities.length === 0 ? (
+                            <tr className="hover:bg-gray-50 dark:hover:bg-neutral-800/50">
+                                <td colSpan={5} className="px-6 py-3 text-sm">
+                                    <p className="text-gray-500 dark:text-neutral-400 text-center">
+                                        No activities found
+                                    </p>
                                 </td>
                             </tr>
-                        ))}
+                        ) : (
+                            filteredActivities.map((activity) => (
+                                <tr key={activity._id} className="hover:bg-gray-50 dark:hover:bg-neutral-800/50">
+                                    <td className="px-6 py-3 text-sm">
+                                        <span className="text-xs px-2 py-1 rounded-md bg-gray-100 dark:bg-neutral-800">{activity.entityType || "-"}</span>
+                                    </td>
+                                    <td className="px-6 py-3 text-sm">
+                                        {activity.metadata?.projectName || "-"}
+                                    </td>
+                                    <td className="px-6 py-3 text-sm">
+                                        {activity.userId?.name} <span className={`px-2 py-1 text-xs rounded-md ${ROLE_COLORS[activity.userRole]}`}>{activity.userRole}</span>
+                                    </td>
+                                    <td className="px-6 py-3 text-sm">
+                                        {new Date(activity.createdAt).toLocaleString()}
+                                    </td>
+                                    <td className="px-6 py-3 text-sm">
+                                        {activity.message}
+                                    </td>
+                                </tr>
+                            ))
+                        )}
                     </tbody>
                 </table>
             </div>
@@ -159,31 +173,26 @@ function WorkspaceActivities() {
                                 </div>
                             </div>
 
-                            <span className={`px-2 py-1 text-xs rounded-md whitespace-nowrap ${ROLE_COLORS[activity.userRole]}`}>
-                                {activity.userRole}
+                            <span className="text-xs px-2 py-1 rounded-md bg-gray-100 dark:bg-neutral-800 whitespace-nowrap">
+                                {activity.entityType}
                             </span>
                         </div>
 
                         <div className="mt-3 text-sm">
-                            {activity.userId?.name}
+                            {activity.userId?.name}{" "}
+                            <span className={`px-2 py-1 text-xs rounded-md whitespace-nowrap ${ROLE_COLORS[activity.userRole]}`}>
+                                {activity.userRole}
+                            </span>
                         </div>
                         <div className="mt-2 text-sm text-gray-700 dark:text-gray-300">
                             {activity.message}
-                        </div>
-
-                        <div className="mt-3">
-                            <span className="text-xs px-2 py-1 rounded bg-gray-100 dark:bg-neutral-800">
-                                {activity.entityType}
-                            </span>
                         </div>
                     </div>
                 ))}
             </div>
             {filteredActivities.length === 0 && (
-                <div className="text-center py-12 border border-dashed border-gray-300 dark:border-neutral-700 rounded-lg">
-                    <p className="text-gray-500 dark:text-neutral-400">
-                        No activities found
-                    </p>
+                <div className="md:hidden text-center py-12 border border-dashed border-gray-300 dark:border-neutral-700 rounded-lg">
+                    <p className="text-gray-500 dark:text-neutral-400">No activities found</p>
                 </div>
             )}
         </div>

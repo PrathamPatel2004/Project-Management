@@ -126,7 +126,7 @@ export const getWorkspaceMembers = async (req, res) => {
         const { workspaceId } = req.params;
 
         const [ members, invitations ] = await Promise.all([
-            WorkspaceMemberModel.find({ workspace: workspaceId }).select("user role joinedAt").populate("user", "name email profileImage lastLoggedIn").lean(),
+            WorkspaceMemberModel.find({ workspace: workspaceId }).select("user role status joinedAt").populate("user", "name email profileImage lastLoggedIn").lean(),
             WorkspaceInvitationModel.find({ workspace: workspaceId, acceptedAt: null, expiresAt: { $gt: new Date() } }).select("email role invitedBy expiresAt").populate("invitedBy", "name email profileImage").lean()
         ]);
 

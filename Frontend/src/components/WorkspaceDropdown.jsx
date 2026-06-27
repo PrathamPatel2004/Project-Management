@@ -75,6 +75,7 @@ function WorkspaceDropdown() {
                         <div className="flex items-center gap-3">
                             <img
                                 src={currentWorkspace?.logo || "/no-image.png"}
+                                onError={(e) => { e.target.style.display = "none" }}
                                 className="w-8 h-8 rounded object-cover"
                             />
                             <div className="text-left min-w-0">

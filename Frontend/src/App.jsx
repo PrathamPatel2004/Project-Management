@@ -15,6 +15,10 @@ import ProjectDetails from './pages/ProjectDetails';
 import ProjectDetailsLayout from './pages/ProjectDetailsLayout';
 import TeamInvitations from './pages/TeamInvitations';
 import WorkspaceInviteAccept from './components/WorkspaceInviteAccept';
+import ProjectOverview from './pages/ProjectOverview';
+import ProjectMembers from './pages/ProjectMembers';
+import ProjectSettingsPage from './pages/ProjectSettings';
+import ProjectTasks from './pages/ProjectTasks';
 
 function AppProvider() {
     const { user } = useAuth();
@@ -63,12 +67,12 @@ function AppProvider() {
                             <Route path='project/details' element={<RequireProjectId />} />
                             <Route path="project/details/:id" element={<ProjectDetailsLayout />}>
                                 <Route index element={<Navigate to="overview" replace />} />
-                                <Route path="overview" element={<ProjectDetails />} />
-                                <Route path="members" element={<ProjectDetails />} />
-                                <Route path="tasks" element={<ProjectDetails />} />
+                                <Route path="overview" element={<ProjectOverview />} />
+                                <Route path="members" element={<ProjectMembers />} />
+                                <Route path="tasks" element={<ProjectTasks />} />
                                 <Route path="calendar" element={<ProjectDetails />} />
                                 <Route path="files" element={<ProjectDetails />} />
-                                <Route path="settings" element={<ProjectDetails />} />
+                                <Route path="settings" element={<ProjectSettingsPage />} />
                             </Route>
                             <Route path="/workspace/invite" element={<WorkspaceInviteAccept />} />
                         </>

@@ -39,20 +39,6 @@ function ProjectDetails() {
         return project?.tasks || [];
     }, [project]);
 
-    const taskStats = useMemo(() => {
-        const completed = tasks.filter(
-            (task) => task.status === "DONE"
-        ).length;
-        const inProgress = tasks.filter(
-            (task) => task.status === "IN_PROGRESS" || task.status === "TODO"
-        ).length;
-        return {
-            total: tasks.length,
-            completed,
-            inProgress,
-        };
-    }, [tasks]);
-
     const statusColors = {
         Idea: "bg-neutral-200 text-neutral-900 dark:bg-neutral-600 dark:text-neutral-200",
         Planning: "bg-blue-200 text-blue-900 dark:bg-blue-500 dark:text-blue-900",
@@ -100,25 +86,6 @@ function ProjectDetails() {
                 </button>
             </div>
 
-            <div className="grid grid-cols-2 sm:flex gap-6">
-                {[
-                    { label: "Total Tasks", value: taskStats.total },
-                    { label: "Completed", value: taskStats.completed },
-                    { label: "In Progress", value: taskStats.inProgress },
-                    { label: "Team Members", value: project.members?.length || 0 },
-                ].map((item) => (
-                    <div
-                        key={item.label}
-                        className="border border-neutral-200 dark:border-neutral-800 rounded p-4 flex justify-between gap-2"
-                    >
-                        <div>
-                            <p className="text-sm text-neutral-500">{item.label}</p>
-                            <p className="text-2xl font-bold">{item.value}</p>
-                        </div>
-                        <ElectricBoltIcon fontSize="small" />
-                    </div>
-                ))}
-            </div>
             <div className="inline-flex flex-wrap gap-2 border rounded">
                 {[
                     { key: "tasks", label: "Tasks", icon: FolderCopyIcon },
@@ -142,19 +109,6 @@ function ProjectDetails() {
                     </button>
                 ))}
             </div>
-
-            {/* {activeTab === "tasks" && <ProjectTasks tasks={tasks} />}
-            {activeTab === "analytics" && (<ProjectAnalytics tasks={tasks} project={project} />)}
-            {activeTab === "calendar" && <ProjectCalendar tasks={tasks} />}
-            {activeTab === "settings" && <ProjectSettings project={project} />}
- */}
-            {/* {showCreateTask && (
-                <CreateTaskDialog
-                    showCreateTask={showCreateTask}
-                    setShowCreateTask={setShowCreateTask}
-                    projectId={id}
-                />
-            )} */}
         </div>
     );
 }

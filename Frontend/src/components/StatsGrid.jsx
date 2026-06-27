@@ -1,12 +1,15 @@
 import { useMemo } from "react";
+import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
+import { fetchWorkspaceMembers } from "../features/workspaceMemberSlice";
 import VerifiedIcon from "@mui/icons-material/Verified";
 import FolderOpenIcon from "@mui/icons-material/FolderOpen";
 import AssignmentIcon from "@mui/icons-material/Assignment";
-import WarningAmberIcon from "@mui/icons-material/WarningAmber";
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 
 function StatsGrid() {
     const currentWorkspace = useSelector((state) => state.workspace?.currentWorkspace);
+    const members = useSelector((state) => state.workspaceMembers?.members || []);
     const { projects = [] } = useSelector((state) => state.projects || {});
     const stats = useMemo(() => {
         const totalProjects = projects.length;
@@ -20,11 +23,8 @@ function StatsGrid() {
         const myTasks = tasks.filter(
             (t) => t.assigneeId === currentWorkspace?.owner
         ).length;
-        const overdueIssues = tasks.filter(
-            (t) =>
-                t.due_date &&
-                new Date(t.due_date) < new Date() &&
-                t.status !== "DONE"
+        const workspaceMembers = members.filter(
+            (m) => m.status === "Active"
         ).length;
 
         return {
@@ -32,7 +32,7 @@ function StatsGrid() {
             activeProjects,
             completedTasks,
             myTasks,
-            overdueIssues,
+            workspaceMembers
         };
     }, [projects, currentWorkspace]);
 
@@ -42,10 +42,20 @@ function StatsGrid() {
             title: "Total Projects",
             value: stats.totalProjects,
             subtitle: currentWorkspace
-                ? `projects in ${currentWorkspace?.name}`
+                ? `Projects in ${currentWorkspace?.name}`
                 : "No workspace selected",
             bgColor: "bg-blue-500/10",
             textColor: "text-blue-500",
+            route: "/projects"
+        },
+        {
+            icon: AccountCircleIcon,
+            title: "Active Members",
+            value: stats.workspaceMembers,
+            subtitle: "Current Active Members",
+            bgColor: "bg-amber-500/10",
+            textColor: "text-amber-500",
+            route: "/team"
         },
         {
             icon: VerifiedIcon,
@@ -54,6 +64,7 @@ function StatsGrid() {
             subtitle: `in ${stats.totalProjects} projects`,
             bgColor: "bg-emerald-500/10",
             textColor: "text-emerald-500",
+            route: "/tasks"
         },
         {
             icon: AssignmentIcon,
@@ -62,22 +73,15 @@ function StatsGrid() {
             subtitle: "tasks assigned to me",
             bgColor: "bg-purple-500/10",
             textColor: "text-purple-500",
-        },
-        {
-            icon: WarningAmberIcon,
-            title: "Overdue",
-            value: stats.overdueIssues,
-            subtitle: "task need attention",
-            bgColor: "bg-amber-500/10",
-            textColor: "text-amber-500",
-        },
+            route: "/mytasks"
+        }
     ];
     
     return (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 my-9">
             {statCards.map(
-                ({ icon: Icon, title, value, subtitle, bgColor, textColor }, i) => (
-                    <div key={i} className="bg-white dark:bg-zinc-950 dark:bg-gradient-to-br dark:from-zinc-800/70 dark:to-zinc-900/50 border border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700 transition duration-200 rounded-md" >
+                ({ icon: Icon, title, value, subtitle, bgColor, textColor, route }, i) => (
+                    <Link to={route} key={i} className="bg-white dark:bg-zinc-950 dark:bg-gradient-to-br dark:from-zinc-800/70 dark:to-zinc-900/50 border border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700 transition duration-200 rounded-md" >
                         <div className="p-6 py-4">
                             <div className="flex items-start justify-between">
                                 <div>
@@ -98,7 +102,7 @@ function StatsGrid() {
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    </Link>
                 )
             )}
         </div>

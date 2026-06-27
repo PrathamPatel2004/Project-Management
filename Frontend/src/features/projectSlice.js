@@ -1,3 +1,4 @@
+import axios from "axios";
 import api from "../api/axios";
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
@@ -12,6 +13,18 @@ export const fetchProjects = createAsyncThunk(
         }
     }
 );
+
+export const fetchProjectSettings = createAsyncThunk(
+    "projects/fetchProjectSettings",
+    async (projectId, { rejectWithValue }) => {
+        try {
+            const { data } = await api.get(`/api/project/${projectId}/settings`);
+            return data.settings;
+        } catch (err) {
+            return rejectWithValue(err.response?.data || err.message);
+        }
+    }
+)
 
 const initialState = {
     projects: [],
@@ -53,7 +66,10 @@ const projectSlice = createSlice({
         })
         .addCase(fetchProjects.fulfilled, (state, action) => {
             state.loading = false;
-            state.projects = action.payload || [];
+            state.projects = (action.payload || []).map(p => ({
+                ...p,
+                id: String(p._id),
+            }));
         })
         .addCase(fetchProjects.rejected, (state, action) => {
             state.loading = false;

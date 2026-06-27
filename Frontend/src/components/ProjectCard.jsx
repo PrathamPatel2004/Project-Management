@@ -3,17 +3,18 @@ import { Link } from "react-router-dom";
 function ProjectCard({ project }) {
 
     const statusColors = {
-        PLANNING: "bg-neutral-200 text-neutral-800 dark:bg-neutral-600 dark:text-neutral-200",
-        ACTIVE: "bg-emerald-200 text-emerald-800 dark:bg-emerald-500/80 dark:text-emerald-100",
-        ON_HOLD: "bg-amber-200 text-amber-800 dark:bg-amber-500/80 dark:text-amber-100",
-        COMPLETED: "bg-blue-200 text-blue-800 dark:bg-blue-500/80 dark:text-blue-100",
-        CANCELLED: "bg-red-200 text-red-800 dark:bg-red-500/80 dark:text-red-100",
+        Active: "bg-emerald-200 text-emerald-800 dark:bg-emerald-500/80 dark:text-emerald-100",
+        "On Hold": "bg-amber-200 text-amber-800 dark:bg-amber-500/80 dark:text-amber-100",
+        Completed: "bg-blue-200 text-blue-800 dark:bg-blue-500/80 dark:text-blue-100",
+        Cancelled: "bg-red-200 text-red-800 dark:bg-red-500/80 dark:text-red-100",
+        Archived: "bg-violet-200 text-violet-800 dark:bg-violet-500/80 dark:text-violet-100",
     };
 
     const priorityColor = {
-        LOW: "bg-neutral-400",
-        MEDIUM: "bg-amber-400",
-        HIGH: "bg-green-500",
+        Low: "text-neutral-600 dark:text-neutral-400",
+        Medium: "text-amber-600 dark:text-amber-400",
+        High: "text-green-600 dark:text-green-400",
+        Critical: "text-red-600 dark:text-red-400"
     };
 
     const getProgress = () => {
@@ -51,11 +52,11 @@ function ProjectCard({ project }) {
 
                     <div className="min-w-0 flex-1">
                         <h3 className="font-semibold text-sm sm:text-base text-neutral-900 dark:text-neutral-100 truncate group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">{project.name}</h3>
-                        <p className={`text-xs ${priorityColor[project.priority]}`}>{project.priority}</p>
+                        <span className={`text-xs ${priorityColor[project.priority]}`}>{project.priority}</span>
                     </div>
                 </div>
 
-                <span className={`shrink-0 text-[10px] sm:text-xs px-2 py-1 rounded-full font-medium ${statusColors[project.status] || ""}`}>
+                <span className={`shrink-0 text-[10px] sm:text-xs px-2 py-1 rounded-md font-medium ${statusColors[project.status] || ""}`}>
                     {project.status.replace("_", " ")}
                 </span>
             </div>

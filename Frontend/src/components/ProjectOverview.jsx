@@ -65,7 +65,7 @@ function ProjectOverview() {
                 ) : (
                     <div className='divide-y divide-neutral-200 dark:divide-neutral-800'>
                         {projects.slice(0, 5).map((project) => (
-                            <Link key={project.id} to={`/projectsDetail?id=${project.id}&tab=tasks`} className='block hover:bg-neutral-50 dark:hover:bg-neutral-900/50 transition-colors p-4'>
+                            <Link key={project.id} to={`/project/details/${project._id || project.id}`} className='block hover:bg-neutral-50 dark:hover:bg-neutral-900/50 transition-colors p-4'>
                                 <div className="flex items-center gap-4 flex-1">
                                     <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-lg overflow-hidden flex-shrink-0">
                                         {project.projectIcon ? (

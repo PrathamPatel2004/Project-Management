@@ -81,7 +81,7 @@ function ProjectSidebar() {
                                         return (
                                             <Link
                                                 key={sub.tab}
-                                                to={`/projectDetails?id=${project.id}&tab=${sub.tab}`}
+                                                to={`/project/details/${project._id || project.id}`}
                                                 className={`block px-3 py-1.5 rounded-md text-xs transition ${
                                                     isActive
                                                         ? "bg-blue-100 text-blue-600 dark:bg-blue-500/10 dark:text-blue-400"

@@ -10,6 +10,9 @@ function Projects() {
     const currentWorkspace = useSelector((state) => state.workspace?.currentWorkspace);
     const { projects = [] } = useSelector((state) => state.projects || {});
     const [searchTerm, setSearchTerm] = useState("");
+    const [showFilters, setShowFilters] = useState(false);
+    const [statusFilter, setStatusFilter] = useState("All");
+    const [priorityFilter, setPriorityFilter] = useState("All");
     const [isModalOpen, setIsModalOpen] = useState(false);
 
     const [filters, setFilters] = useState({
@@ -18,32 +21,24 @@ function Projects() {
     });
 
     const filteredProjects = useMemo(() => {
-        let filtered = [...projects];
+        return projects.filter((project) => {
+            const projectName = project.name || "";
+            const matchesSearch = projectName.toLowerCase().includes(searchTerm.toLowerCase()) || project.action.toLowerCase().includes(searchTerm.toLowerCase());
+        
+            const matchesStatus = statusFilter === "All" || project.status === statusFilter;
+            const matchesPriority = priorityFilter === "All" || project.priority === priorityFilter;
 
-        if (searchTerm.trim()) {
-            const q = searchTerm.toLowerCase();
-            filtered = filtered.filter(
-                (project) =>
-                    project.name?.toLowerCase().includes(q) ||
-                    project.description?.toLowerCase().includes(q)
-            );
+            return (matchesSearch && matchesStatus && matchesPriority);
+        });
+    }, [projects, searchTerm, statusFilter, priorityFilter]);
+
+    const handleMobileFilter = (setter) => (e) => {
+        setter(e.target.value);
+        if (window.innerWidth < 768) {
+            setShowFilters(false);
         }
-
-        if (filters.status !== "All") {
-            filtered = filtered.filter(
-                (project) => project.status === filters.status
-            );
-        }
-
-        if (filters.priority !== "All") {
-            filtered = filtered.filter(
-                (project) => project.priority === filters.priority
-            );
-        }
-
-        return filtered;
-    }, [projects, searchTerm, filters]);
-
+    };
+    
     return (
         <div className="space-y-6 max-w-6xl mx-auto">
             <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
@@ -59,43 +54,51 @@ function Projects() {
                     <AddIcon fontSize="small" />New Project
                 </button>
 
+                <button
+                    onClick={() => setShowFilters(!showFilters)}
+                    className="md:hidden flex items-center justify-center px-4 py-2 border border-gray-300 dark:border-neutral-700 rounded-lg text-sm"
+                >
+                    {showFilters ? "Hide Filters" : "Show Filters"}
+                </button>
+
                 <CreateProjectModal isModalOpen={isModalOpen} setIsModalOpen={setIsModalOpen} />
             </div>
 
-            <div className="flex flex-col md:flex-row gap-4">
-                <div className="relative w-full md:max-w-sm">
-                    <SearchIcon className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400 dark:text-neutral-400 text-sm" />
+            <div className={`border border-gray-200 dark:border-neutral-800 rounded-lg bg-white dark:bg-neutral-950 p-4 ${showFilters ? "block" : "hidden"} md:block`}>
+                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3">
                     <input
+                        type="text"
                         placeholder="Search projects..."
                         value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        className="pl-8 pr-4 w-full text-sm rounded-md border border-gray-300 dark:border-neutral-800 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-neutral-400 py-2 focus:outline-none focus:border-blue-500 bg-transparent"
+                        onChange={handleMobileFilter(setSearchTerm)}
+                        className="px-3 py-2 rounded-md border border-gray-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 text-sm"
                     />
+
+                    <select
+                        value={statusFilter}
+                        onChange={handleMobileFilter(setStatusFilter)}
+                        className="px-3 py-2 rounded-md border border-gray-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 text-sm"
+                    >
+                        <option value="All">All Status</option>
+                        <option value="Active">Active</option>
+                        <option value="On_Hold">On Hold</option>
+                        <option value="Completed">Completed</option>
+                        <option value="Cancelled">Cancelled</option>
+                        <option value="Archived">Archived</option>
+                    </select>
+
+                    <select
+                        value={priorityFilter}
+                        onChange={handleMobileFilter(setPriorityFilter)}
+                        className="px-3 py-2 rounded-md border border-gray-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 text-sm"
+                    >
+                        <option value="All">All Priority</option>
+                        <option value="High">High</option>
+                        <option value="Medium">Medium</option>
+                        <option value="Low">Low</option>
+                        <option value="Critical">Critical</option>
+                    </select>
                 </div>
-
-                <select
-                    value={filters.status}
-                    onChange={(e) => setFilters({ ...filters, status: e.target.value })}
-                    className="px-3 py-2 rounded-md border border-gray-300 dark:border-neutral-700 text-gray-900 dark:text-white text-sm bg-transparent"
-                >
-                    <option value="ALL">All Status</option>
-                    <option value="ACTIVE">Active</option>
-                    <option value="PLANNING">Planning</option>
-                    <option value="COMPLETED">Completed</option>
-                    <option value="ON_HOLD">On Hold</option>
-                    <option value="CANCELLED">Cancelled</option>
-                </select>
-
-                <select
-                    value={filters.priority}
-                    onChange={(e) => setFilters({ ...filters, priority: e.target.value })}
-                    className="px-3 py-2 rounded-md border border-gray-300 dark:border-neutral-700 text-gray-900 dark:text-white text-sm bg-transparent"
-                >
-                    <option value="ALL">All Priority</option>
-                    <option value="HIGH">High</option>
-                    <option value="MEDIUM">Medium</option>
-                    <option value="LOW">Low</option>
-                </select>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">

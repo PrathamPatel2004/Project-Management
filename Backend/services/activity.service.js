@@ -7,19 +7,19 @@ export const createActivity = ({ userId, workspaceId, action, entityType, entity
 export const getActivityMessage = (activity) => {
     switch (activity.action) {
         case "WORKSPACE_CREATED":
-            return `Created workspace "${activity.metadata?.workspaceName}"`;
+            return `Created Workspace "${activity.metadata?.workspaceName}"`;
 
         case "WORKSPACE_UPDATED":
-            return `Updated workspace`;
+            return `Updated Workspace`;
 
         case "PROJECT_CREATED":
-            return `Created project "${activity.metadata?.projectName}"`;
+            return `Created Project "${activity.metadata?.projectName}"`;
 
         case "PROJECT_UPDATED":
-            return `Updated project "${activity.metadata?.projectName}"`;
+            return `Updated Project "${activity.metadata?.projectName}"`;
 
         case "PROJECT_DELETED":
-            return `Deleted project "${activity.metadata?.projectName}"`;
+            return `Deleted Project "${activity.metadata?.projectName}"`;
 
         case "MEMBERS_INVITED":
             return `Invited ${activity.metadata?.emails?.length || 0} members`;
@@ -31,16 +31,16 @@ export const getActivityMessage = (activity) => {
             return `Changed role of ${activity.metadata?.email}`;
 
         case "TASK_CREATED":
-            return `Created task "${activity.metadata?.taskName}"`;
+            return `Created Task "${activity.metadata?.taskName}"`;
 
         case "TASK_UPDATED":
-            return `Updated task "${activity.metadata?.taskName}"`;
+            return `Updated Task "${activity.metadata?.taskName}"`;
 
         case "TASK_COMPLETED":
-            return `Completed task "${activity.metadata?.taskName}"`;
+            return `Completed Task "${activity.metadata?.taskName}"`;
 
         case "TASK_DELETED":
-            return `Deleted task "${activity.metadata?.taskName}"`;
+            return `Deleted Task "${activity.metadata?.taskName}"`;
 
         default:
             return activity.action

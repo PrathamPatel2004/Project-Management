@@ -1,133 +1,161 @@
-import { useEffect, useState, useMemo } from "react";
-import { Outlet, useNavigate, useParams } from "react-router-dom";
+import { useEffect, useMemo, useState } from "react";
+import { NavLink, Outlet, useNavigate, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchProjects } from "../features/projectSlice";
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import AddIcon from '@mui/icons-material/Add';
-import InsertChartIcon from '@mui/icons-material/InsertChart';
-import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
-import FolderCopyIcon from '@mui/icons-material/FolderCopy';
-import ElectricBoltIcon from '@mui/icons-material/ElectricBolt';
-import SettingsIcon from '@mui/icons-material/Settings';
-// import ProjectTaskChart from "../components/ProjectTaskChart";
-// import ProjectProgressChart from "../components/ProjectProgressChart";
+import FolderCopyIcon from "@mui/icons-material/FolderCopy";
+import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
+import SettingsIcon from "@mui/icons-material/Settings";
+import GroupIcon from "@mui/icons-material/Group";
+import DescriptionIcon from "@mui/icons-material/Description";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import AddIcon from "@mui/icons-material/Add";
+import CreateTaskModal from "../components/CreateTaskModal";
+import { fetchTasks } from "../features/tasksSlice";
 
 const ProjectDetailsLayout = () => {
     const { id } = useParams();
+    const navigate = useNavigate();
+    const dispatch = useDispatch();
+
+    const tabs = [
+        {
+            label: "Overview",
+            path: `/project/details/${id}/overview`,
+            icon: FolderCopyIcon,
+        },
+        {
+            label: "Members",
+            path: `/project/details/${id}/members`,
+            icon: GroupIcon,
+        },
+        {
+            label: "Tasks",
+            path: `/project/details/${id}/tasks`,
+            icon: FolderCopyIcon,
+        },
+        {
+            label: "Calendar",
+            path: `/project/details/${id}/calendar`,
+            icon: CalendarTodayIcon,
+        },
+        {
+            label: "Files",
+            path: `/project/details/${id}/files`,
+            icon: DescriptionIcon,
+        },
+        {
+            label: "Settings",
+            path: `/project/details/${id}/settings?tab=general`,
+            icon: SettingsIcon,
+        },
+    ];
+
     const currentWorkspace = useSelector((state) => state.workspace?.currentWorkspace);
     const { projects = [] } = useSelector((state) => state.projects || {});
+    const { tasks = [] } = useSelector((state) => state.tasks || {});
     const [showCreateTask, setShowCreateTask] = useState(false);
-
-    const dispatch = useDispatch();
-    const navigate = useNavigate();
 
     useEffect(() => {
         if (currentWorkspace?._id) {
             dispatch(fetchProjects(currentWorkspace._id));
         }
-    }, [currentWorkspace, dispatch]);
+    }, [currentWorkspace?._id, dispatch]);
 
     const project = useMemo(() => {
         if (!id) return null;
-        return projects.find(
-            (proj) => proj._id?.toString() === id || proj.id === id
-        ) || null;
+        return (
+            projects.find((proj) => proj?._id?.toString() === id || proj?.id?.toString() === id) || null
+        );
     }, [id, projects]);
-
-    const tasks = useMemo(() => {
-        return project?.tasks || [];
+    
+    const projectMembers = useMemo(() => {
+        return project?.projectMembers || [];
     }, [project]);
 
-    const taskStats = useMemo(() => {
-        const completed = tasks.filter(
-            (task) => task.status === "DONE"
-        ).length;
-        const inProgress = tasks.filter(
-            (task) => task.status === "IN_PROGRESS" || task.status === "TODO"
-        ).length;
-        return {
-            total: tasks.length,
-            completed,
-            inProgress,
-        };
+    useEffect(() => {
+        if (id) {
+            dispatch(fetchTasks(id))
+            console.log(tasks)
+        }
+    }, [id, dispatch]);
+
+    useEffect(() => {
+        console.log("Tasks updated:", tasks);
     }, [tasks]);
 
     const statusColors = {
         Idea: "bg-neutral-200 text-neutral-900 dark:bg-neutral-600 dark:text-neutral-200",
-        Planning: "bg-blue-200 text-blue-900 dark:bg-blue-500 dark:text-blue-900",
-        "In Progress": "bg-emerald-200 text-emerald-900 dark:bg-emerald-500 dark:text-emerald-900",
-        "On Hold": "bg-amber-200 text-amber-900 dark:bg-amber-500 dark:text-amber-900",
-        Completed: "bg-green-200 text-green-900 dark:bg-green-500 dark:text-green-900",
-        Cancelled: "bg-red-200 text-red-900 dark:bg-red-500 dark:text-red-900",
+        Planning: "bg-blue-200 text-blue-900 dark:bg-blue-500/30 dark:text-blue-300",
+        "In Progress": "bg-emerald-200 text-emerald-900 dark:bg-emerald-500/30 dark:text-emerald-300",
+        "On Hold": "bg-amber-200 text-amber-900 dark:bg-amber-500/30 dark:text-amber-300",
+        Completed: "bg-green-200 text-green-900 dark:bg-green-500/30 dark:text-green-300",
+        Cancelled: "bg-red-200 text-red-900 dark:bg-red-500/30 dark:text-red-300",
     };
 
-    if (!projects.length) {
-        return <div className="p-6 text-center">Loading...</div>;
+    if (!project) {
+        return (
+            <div className="p-6 text-center">
+                <p className="text-3xl md:text-5xl mt-40 mb-10">Project not found</p>
+                <button
+                    onClick={() => navigate("/projects")}
+                    className="px-4 py-2 rounded bg-neutral-200 hover:bg-neutral-300 dark:bg-neutral-700 dark:hover:bg-neutral-600"
+                >
+                    Back to Projects
+                </button>
+            </div>
+        );
     }
 
     return (
-        <div className="space-y-5 max-w-6xl mx-auto bg-white dark:bg-neutral-950 text-gray-900 dark:text-gray-100 overflow-hidden">
-            <div className="flex flex-wrap items-start justify-between gap-4">
-                <div className="flex items-center gap-4">
-                    <button
-                        onClick={() => navigate("/projects")}
-                        className="p-1 rounded hover:bg-neutral-200 dark:hover:bg-neutral-700"
-                    >
-                        <ArrowBackIcon fontSize="small" />
-                    </button>
-                    <h1 className="text-xl font-medium">{project.name}</h1>
-                    <span className={`px-2 py-1 rounded text-xs ${statusColors[project.status]}`}>
-                        {project.status.replace("_", " ")}
-                    </span>
+        <div className="space-y-6 max-w-6xl mx-auto">
+            <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
+                <div>
+                    <h1 className="text-xl sm:text-2xl font-semibold text-gray-900 dark:text-white mb-1">Project Details</h1>
+                    <p className="text-gray-500 dark:text-neutral-400 text-sm">Project Details of <b>{project.name}</b> Project</p>
                 </div>
 
                 <button
                     onClick={() => setShowCreateTask(true)}
-                    className="flex items-center gap-2 px-5 py-2 text-sm rounded bg-blue-500 text-white"
+                    className="flex items-center gap-1.5 px-4 py-2 text-sm bg-gradient-to-br from-blue-500 to-blue-600 text-white rounded hover:opacity-90 transition"
                 >
-                    <AddIcon fontSize="small" /> New Task
+                    <AddIcon fontSize="small" />New Task
                 </button>
+
+                <CreateTaskModal isModalOpen={showCreateTask} setIsModalOpen={setShowCreateTask} projectId={project._id} stages={project.stages} members={projectMembers} tasks={tasks} sprints={project.sprints} />
             </div>
 
-            <div className="grid grid-cols-2 sm:flex gap-6">
-                {[
-                    { label: "Total Tasks", value: taskStats.total },
-                    { label: "Completed", value: taskStats.completed },
-                    { label: "In Progress", value: taskStats.inProgress },
-                    { label: "Team Members", value: project.members?.length || 0 },
-                ].map((item) => (
-                    <div
-                        key={item.label}
-                        className="border border-neutral-200 dark:border-neutral-800 rounded p-4 flex justify-between gap-2"
-                    >
-                        <div>
-                            <p className="text-sm text-neutral-500">{item.label}</p>
-                            <p className="text-2xl font-bold">{item.value}</p>
-                        </div>
-                        <ElectricBoltIcon fontSize="small" />
-                    </div>
-                ))}
-            </div>
-
-            <div className="flex-1 flex flex-col min-w-0">
-                <main className="flex-1 overflow-y-auto">
-                    <div className="w-full px-4 sm:px-6 lg:px-8 py-6">
-                        <Outlet />
-                    </div>
-                </main>
-            </div>
-            {/* <div>
-                <div className="grid lg:grid-cols-5 gap-8">
-                    <div className="lg:col-span-3 space-y-8">
-                        <ProjectTaskChart taskStats={taskStats} onAddTask={() => setShowCreateTask(true)} />
-                    </div>
-                    <div className="lg:col-span-2 space-y-8">
-                        <ProjectProgressChart taskStats={taskStats} />
+            <div className="border-b border-neutral-200 dark:border-neutral-800">
+                <div className="overflow-x-auto scrollbar-hide">
+                    <div className="flex min-w-max gap-2">
+                        {tabs.map((tab) => {
+                            const Icon = tab.icon;
+                            return (
+                                <NavLink
+                                    key={tab.path}
+                                    to={tab.path}
+                                    className={({ isActive }) =>
+                                        `flex items-center gap-1 px-1.5 py-3 text-sm font-medium border-b-2 whitespace-nowrap transition ${
+                                            isActive
+                                                ? "border-blue-500 text-blue-600 dark:text-blue-400"
+                                                : "border-transparent text-neutral-500 hover:text-neutral-900 dark:hover:text-neutral-100"
+                                        }`
+                                    }
+                                >
+                                    <Icon fontSize="small" />
+                                    {tab.label}
+                                </NavLink>
+                            );
+                        })}
                     </div>
                 </div>
-            </div> */}
+            </div>
+            <div className="bg-white dark:bg-neutral-950 rounded-xl border border-neutral-200 dark:border-neutral-800">
+                <div className="p-4 sm:p-6">
+                    <Outlet context={{ project, projectMembers, tasks }} />
+                </div>
+            </div>
         </div>
-    )
-}
+    );
+};
 
 export default ProjectDetailsLayout;

@@ -19,12 +19,16 @@ const CreateProjectModal = ({ isModalOpen, setIsModalOpen }) => {
         status: "Active",
         flowType: "Kanban",
         end_date: "",
+        budget: 0,
+        currency: "USD",
+        labels: [],
         members: [],
         project_stages: []
     });
 
     const [preview, setPreview] = useState(null)
     const [addedNewStage, setAddedNewStage] = useState("")
+    const [addLabel, setAddLabel] = useState("")
     const dispatch = useDispatch()
     const fileRef = useRef(null)
 
@@ -38,6 +42,18 @@ const CreateProjectModal = ({ isModalOpen, setIsModalOpen }) => {
         "Tester",
         "Guest"
     ];
+
+    const CURRENCIES = [
+        "USD",
+        "EUR",
+        "GBP",
+        "INR",
+        "JPY",
+        "KRW",
+        "CNY",
+        "RUB",
+        "BRL"
+    ]
 
     useEffect(() => {
         if (currentWorkspace?.id) dispatch(fetchWorkspaceMembers(currentWorkspace.id));
@@ -63,15 +79,36 @@ const CreateProjectModal = ({ isModalOpen, setIsModalOpen }) => {
         setFormData(prev => ({ ...prev, project_stages: [...prev.project_stages, stageName] }));
         setAddedNewStage("")
     }
+
+    const handleAddLabel = () => {
+        const labelName = addLabel?.trim();
+        if (!labelName) return;
+        if (formData.labels.some(label => label.toLowerCase() === labelName.toLowerCase())) {
+            toast.error("Label already exists");
+            return;
+        }
+        setFormData(prev => ({ ...prev, labels: [...prev.labels, labelName] }));
+        setAddLabel("")
+    }
     
-    const handleRoleChange = (e) => {
+    const handleRoleChange = (userId, role) => {
         setFormData(prev => ({
             ...prev,
-            members: prev.members.map(m => m.userId === member.userId ? { ...m, role: e.target.value } : m)
-        }))
-    }
+            members: prev.members.map(m => m.userId === userId ? { ...m, role } : m)
+        }));
+    };
 
     const getDateDifference = (endDate) => {
+        if (!endDate) {
+            return {
+                days: 0,
+                weeks: 0,
+                months: 0,
+                years: 0,
+                error: null,
+            };
+        }
+
         const now = new Date();
         const end = new Date(endDate);
 
@@ -79,14 +116,21 @@ const CreateProjectModal = ({ isModalOpen, setIsModalOpen }) => {
         const days = Math.floor(diffMs / (1000 * 60 * 60 * 24));
 
         if (diffMs < 0) {
-            return { error: "End date is in the past" }
+            return { 
+                days: 0,
+                weeks: 0,
+                months: 0,
+                years: 0,
+                error: "End date is in the past"
+            }
         }
         
         return {
             days,
             weeks: Math.floor(days / 7),
             months: Math.floor(days / 30),
-            years: Math.floor(days / 365)
+            years: Math.floor(days / 365),
+            error: null
         };
     };
 
@@ -133,6 +177,9 @@ const CreateProjectModal = ({ isModalOpen, setIsModalOpen }) => {
                 status: "Active",
                 flowType: "Kanban",
                 end_date: "",
+                budget: 0,
+                currency: "USD",
+                labels: [],
                 members: [],
                 project_stages: []
             })
@@ -174,9 +221,7 @@ const CreateProjectModal = ({ isModalOpen, setIsModalOpen }) => {
 
                     <form onSubmit={handleSubmit} className="space-y-4">
                         <div className="flex items-center gap-4">
-                            <div className="w-16 h-16 rounded-lg border overflow-hidden cursor-pointer bg-gray-100 flex items-center justify-center dark:bg-neutral-800"
-                                onClick={() => fileRef.current.click()}
-                            >
+                            <div onClick={() => fileRef.current.click()} className="w-16 h-16 rounded-lg border overflow-hidden cursor-pointer bg-gray-100 flex items-center justify-center dark:bg-neutral-800">
                                 {preview ? (
                                     <img
                                         src={preview}
@@ -301,7 +346,7 @@ const CreateProjectModal = ({ isModalOpen, setIsModalOpen }) => {
                                                     type="button"
                                                     onClick={() => setFormData(prev => ({ ...prev, project_stages: prev.project_stages.filter((_, i) => i !== index) })) }
                                                 >
-                                                    ✕
+                                                    <CloseIcon className="w-4 h-4" />
                                                 </button>
                                             </div>
                                             
@@ -385,7 +430,7 @@ const CreateProjectModal = ({ isModalOpen, setIsModalOpen }) => {
                                                 type="button"
                                                 onClick={() => setFormData(prev => ({ ...prev, members: prev.members.filter(m => m.role !== "Lead")})) }
                                             >
-                                                ✕
+                                                <CloseIcon className="w-4 h-4" />
                                             </button>
                                         </div>
                                     );
@@ -409,13 +454,11 @@ const CreateProjectModal = ({ isModalOpen, setIsModalOpen }) => {
                                     <div className="flex items-center gap-2">
                                         <select
                                             value={member.role}
-                                            onChange={handleRoleChange}
+                                            onChange={(e) => handleRoleChange(member.userId, e.target.value)}
                                             className="border rounded px-2 py-1 text-sm dark:bg-zinc-900 dark:text-zinc-200 dark:border-zinc-700"
                                         >
                                             {PROJECT_ROLES.map(role => (
-                                                <option key={role} value={role}>
-                                                    {role}
-                                                </option>
+                                                <option key={role} value={role}>{role}</option>
                                             ))}
                                         </select>
 
@@ -423,7 +466,7 @@ const CreateProjectModal = ({ isModalOpen, setIsModalOpen }) => {
                                             type="button"
                                             onClick={() => setFormData(prev => ({ ...prev, members: prev.members.filter(m => m.userId !== member.userId) })) }
                                         >
-                                            ✕
+                                            <CloseIcon className="w-4 h-4" />
                                         </button>
                                     </div>
                                 </div>
@@ -446,9 +489,7 @@ const CreateProjectModal = ({ isModalOpen, setIsModalOpen }) => {
                                 <div className="w-full px-3 py-2 rounded dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-700 mt-1">
                                     {formData.end_date ? (
                                         error ? (
-                                            <span className="text-red-500 dark:text-red-400 text-sm">
-                                                {error}
-                                            </span>
+                                            <span className="text-red-500 dark:text-red-400 text-sm">{error}</span>
                                         ) : (
                                             <span className="text-zinc-900 dark:text-zinc-200 text-sm">
                                                 {years > 0
@@ -461,13 +502,75 @@ const CreateProjectModal = ({ isModalOpen, setIsModalOpen }) => {
                                             </span>
                                         )
                                     ) : (
-                                        <span className="text-gray-500 dark:text-gray-400 text-sm">
-                                            Select Expected End Date
-                                        </span>
+                                        <span className="text-gray-500 dark:text-gray-400 text-sm">Select Expected End Date</span>
                                     )}
                                 </div>
                             </div>
                         </div>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-4">
+                            <div>
+                                <label className="block text-sm mb-1">Budget</label>
+                                <input
+                                    type="number"
+                                    value={formData.budget}
+                                    onChange={(e) => setFormData({ ...formData, budget: e.target.value })}
+                                    min={0}
+                                    className="w-full px-3 py-2 rounded dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-700 mt-1 text-zinc-900 dark:text-zinc-200 text-sm"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm mb-1">Currency</label>
+                                <select 
+                                    value={formData.currency}
+                                    onChange={(e) => setFormData({ ...formData, currency: e.target.value })}
+                                    className="w-full px-3 py-2 rounded dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-700 mt-1 text-zinc-900 dark:text-zinc-200 text-sm"
+                                >
+                                    {CURRENCIES.map(currency => (
+                                        <option key={currency} value={currency}>
+                                            {currency}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+                        </div>
+
+                        <div className="flex gap-2">
+                            <input
+                                type="text"
+                                value={addLabel}
+                                onChange={(e) => setAddLabel(e.target.value)}
+                                placeholder="Enter labels"
+                                className="flex-1 px-3 py-2 rounded dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-700 text-sm"
+                            />
+                                <button
+                                    type="button"
+                                    onClick={handleAddLabel}
+                                    className="px-3 py-2 bg-blue-600 text-white rounded"
+                                >
+                                    Add
+                                </button>
+                            </div>
+                        {formData.labels.length > 0 && (
+                            <div className="flex flex-wrap gap-2 mt-2">
+                                {formData.labels.map(label => (
+                                    <span key={label} className="flex items-center gap-2 px-2 py-1 rounded bg-zinc-100 dark:bg-zinc-800 text-sm">
+                                        {label}
+                                        <button
+                                            type="button"
+                                            onClick={() =>
+                                                setFormData(prev => ({
+                                                    ...prev,
+                                                    labels: prev.labels.filter(l => l !== label)
+                                                }))
+                                            }
+                                        >
+                                            <CloseIcon fontSize="small" />
+                                        </button>
+                                    </span>
+                                ))}
+                            </div>
+                        )}
 
                         <div className="flex justify-end gap-3 pt-2 text-sm">
                             <button type="button" onClick={() => setIsModalOpen(false)} className="px-4 py-2 rounded border border-zinc-300 dark:border-zinc-700 hover:bg-zinc-200 dark:hover:bg-zinc-800" >
